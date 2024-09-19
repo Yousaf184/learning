@@ -13,7 +13,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-//@EnableWebSecurity
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Bean
@@ -21,7 +21,7 @@ public class SecurityConfig {
         httpSecurity
                 .csrf(csrfConfigurer -> csrfConfigurer
                         .ignoringRequestMatchers("/contact/saveMsg")
-                        .ignoringRequestMatchers(PathRequest.toH2Console())
+//                        .ignoringRequestMatchers(PathRequest.toH2Console()) // needed for H2 database
                 )
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/dashboard").authenticated()
@@ -32,7 +32,7 @@ public class SecurityConfig {
                         .requestMatchers("/about").permitAll()
                         .requestMatchers("/courses").permitAll()
                         .requestMatchers("/assets/**").permitAll()
-                        .requestMatchers(PathRequest.toH2Console()).permitAll()
+//                        .requestMatchers(PathRequest.toH2Console()).permitAll() // needed for H2 database
                         .anyRequest().authenticated()
                 )
                 .formLogin(formLoginConfigurer -> formLoginConfigurer
@@ -44,11 +44,12 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/login?logout=true").permitAll()
                         .invalidateHttpSession(true)
                 )
-                .httpBasic(Customizer.withDefaults())
-                .headers(headersConfigurer -> headersConfigurer
-                        // to allow opening h2-console
-                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
-                );
+                .httpBasic(Customizer.withDefaults());
+//                needed for H2 database
+//                .headers(headersConfigurer -> headersConfigurer
+//                        // to allow opening h2-console
+//                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
+//                );
 
         return httpSecurity.build();
     }
