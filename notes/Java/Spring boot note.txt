@@ -1,0 +1,352 @@
+Introduction:
+=============
+- Spring makes the development of J2ee applications easier
+- Spring Boot makes the development of spring applications easier
+
+Drawbacks of spring application development:
+--------------------------------------------
+- Lots of manual configuration (complicated, time consuming)
+- Dependency management (compatiblity issues)
+- Difficult to get started for new comers
+
+Spring Boot sovles the above mentioned problems with spring. It is just like any other spring module, for example, spring core, spring MVC, etc.
+
+Spring Boot advantages:
+-----------------------
+- Easier dependency management
+- Auto configuration
+- Embedded server
+- Actuator - addresses non functional requirements, like health, metrics, etc.
+- Dev tools
+- Spring application without XML configuration
+- Opinionated but highly customizable
+- Spring Boot CLI
+
+
+1. Dependency Management in Spring Boot:
+----------------------------------------
+- Spring Boot starter parent
+- Spring Boot starter <feature>
+
+Spring Boot parent starter POM:
+-------------------------------
+- Spring integrates with third-party libs, e.g. redix, mongodb, kafka, etc. Parent starter POM will configure the version information of spring modules and third-party libraries:
+
+Examples:
+
+Spring Boot 1.x --> Spring Boot starter POM --> provides all the compatible versions, e.g. spring-core-3.x, spring-mvc-3.x, jackson-1.x, etc.
+
+Spring Boot 2.x --> Spring Boot starter POM --> provides all the compatible versions, e.g. spring-core-4.x, spring-mvc-4.x, jackson-2.x, etc.
+
+
+Spring Boot starter <feature>
+-----------------------------
+
+spring-boot-starter-web
+spring-boot-starter-jdbc
+spring-boot-starter-redis
+spring-boot-starter-jpa
+
+Instead of adding all the dependencies, just add the starter dependency and it will include all the required dependencies. For example, to develop web apps, just include spring-boot-starter-web and it will include all the required dependencies. Versions of the dependencies will be provided by the parent POM and the dependencies will come from the starter dependency.
+
+
+
+2. Auto configuration:
+----------------------
+- Instead of manually configuring beans such as DataSource, etc., Spring Boot will auto configure and create objects
+- Auto configuration is enabled in spring boot using @SpringBootApplication annotation
+
+
+
+3. Embedded server
+------------------
+- Spring boot application contains an embedded server
+- During startup, application code is deployed in the embedded server
+
+
+
+4. Actuator
+-----------
+- Used for monitoring spring  Boot applications: health, metrics, beans, etc.
+- Production-ready feature
+
+
+
+5. Dev tools
+------------
+- Any changes in the code during development trigger automatic compilation and deployment of the app into the embedded server. In other words, app is automatically reloaded when a change is made.
+- Increases developer productivity
+
+
+
+What happens when SpringApplication.run() method is executed in the main class?
+-------------------------------------------------------------------------------
+1. Creates an empty environment object
+2. Reads properties file and loads the configuration in the environment object created in the previous step
+3. Prints spring boot banner on the console
+4. Identifies the type of application:
+	- If spring MVC jars are found on the classpath, then WebApplicationType=WEB and create AnnotatationConfigServletWebServerApplicationContext
+	- if WebFlux jars are found, then WebApplicationType=Reactive and create AnnotationConfigReactiveWebServerApplicationContext
+	- If none of the above, then WebApplicationType=NONE and create AnnotationApplicationContext
+5. Instantiates the spring factories and registers them in the IOC container
+6. Instantiate ApplicationContextInitializer // detects configurations
+7. prepareContext method
+8. refreshContext // all beans stored in the container
+- During above steps, different events will be emitted and their listeners executed
+
+
+
+How auto configuration works?
+-----------------------------
+- @SpringBootApplication annotation enables auto configuration
+- @SpringBootAnnotation = @SpringBootConfiguration + @EnableAutoConfiguration + @ComponentScan
+
+	> @SpringBootConfiguration:
+            -- Spring configuration class
+            -- Spring Boot names this annotation as part of naming convention
+
+	> @EnableAutoConfguration
+	    -- Enables the auto configuration of framework classes
+	    -- List of auto configured classes: 
+			spring-boot-starter-jar > META-INF > spring.factories
+
+   	> @ComponentScan
+  	    -- Scans for components at the package level and class level
+ 	    -- Default package is the cirrent package containing the Main class
+	    -- Scans child packages as well
+
+
+@ConditionalXXX annotation used for auto configuration:
+
+- class level conditions: 
+	> @ConditionalOnClass - (e.g. auto configure class A only if class B is present on classpath)
+	> @ConditionalOnMissingClass - (e.g. auto configure class A only if class B is NOT present on classpath)
+   
+- bean conditions: 
+	> @ConditionalBean - (e.g. auto configure bean A only if bean B is present in the container)
+	> @ConditionalOnMissingBean - (e.g. auto configure bean A only if bean B is NOT present in the container)
+
+- property conditions: @ConditionalOnProperty
+
+- resource conditions: @ConditionalOnResource
+
+- application type conditions:
+	> @ConditionalWebApplication
+	> @ConditionalNotWebApplication
+
+
+
+Loading properties file in Spring Boot:
+---------------------------------------
+- Spring Boot automatically loads property file named: application.properties or application.yml
+- If we want to load custom property file, we can use @PropertySource annotation
+
+
+Instead of duplicating the common property prefix on instance fields using the @Value annotation, we can define the property prefix at the class level using the @ConfigurationProperties annotation.
+
+To enable this, use the @EnableConfigurationProperties in the Main class.
+
+application.properties:
+book.isbn = 123
+book.title = test
+
+
+@Component
+@ConfigurationProperties(prefix = "book")
+public class Book {
+  private int isbn;
+  private String title;
+}
+
+
+
+
+Spring Profiles:
+================
+- We have different environments like dev, qa, prod, etc.
+- Each environment has its own configurations
+
+
+
+Runners:
+========
+- Used for doing executing some code after container has been created. Useful for doing one-time activity during application startup, like loading values from cache.
+- Implement CommandLineRunner interface and override the run method.
+- There is also an ApplicationRunner.
+
+
+
+
+
+Spring MVC:
+===========
+- Using Spring MVC, we can develop web applications and distributed applications.
+
+M: Model, V: View, C: controller
+                                           _________________
+                                  (2)     |                 | 
+                             ------------>| Handler Mapping |
+                            |             |_________________|
+                            |
+                            |              (3)                       ______________
+		      ______|______-------------------------------->|              |
+       Request  (1)  |             |                                |  controller  |
+     --------------->|  Dispatcher |                                |______________|
+                     |   Servlet   |          ________________   (4)        |
+ 	      	     |_____________|<--------|                |<-------------
+                        |        |           |  ModelAndView  |
+                        |        |           |________________|
+                        |        |   
+                    (6) |        | (5)
+                        |        |           ________________
+       ____________     |        ---------->|                |
+      |            |<----                   |  viewResolver  |
+      |    View    |                        |________________|
+      |____________|
+
+
+Configuring Spirng MVC using Java Config:
+-----------------------------------------
+
+@Configuration
+@EnableWebMvc
+@ComponentScan
+public WebConfig extends WebMvcConfigurerAdapter {
+  // override config methods
+}
+
+Configure dispatcher servlet using Java:
+----------------------------------------
+
+public class ApplicationInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
+  // override config methods
+}
+
+
+With SPring Boot, we don't need to do any configuration for Spring MVC. We can configure it using application.properties.
+
+Spring Boot by default doesn't render .jsp files. Include the following dependency to resolve it:
+
+<dependency>
+   <groupId>org.apache.tomcat.embed</groupId>
+   <artifactId>tomcat-embed-jasper</artifactId>
+</dependency>
+
+
+
+
+Embedded server:
+================
+Four embedded servers in Spring Boot:
+- Tomcat (default)
+- Jetty
+- undertow
+- Netty (for reactive apps)
+
+
+Change the default embedded server:
+1. Embedded tomcat comes with spring-boot-starter-web dependency. Exclude it in the POM file:
+
+<dependency>
+   <groupId>org.springframework.boot</groupId>
+   <artifactId>spring.boot-starter-web</artifactId>
+   <exclusions>
+      <exclusion>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring.boot-starter-tomcat</artifactId>
+      </exclusion>
+   </exclusions>
+</dependency>
+
+2. Add the dependency for another server:
+
+<dependency>
+   <groupId>org.springframework.boot</groupId>
+   <artifactId>spring.boot-starter-jetty</artifactId>
+</dependency>
+
+
+
+Enable WAR packaging:
+---------------------
+- Packaging can be changed from JAR (default) to WAR in pom.xml file using <packaging> tag.
+- In the main class, remove the "main" method and extend the a class as shown below:
+
+	@SpringBootApplication
+	public class SpringBootApplication extends SpringBootServletInitializer {
+    		protected SpringBootBuilder configure(SpringApplicationBuilder builder) {
+        		return builder.sources(SpringBootApplication.class);
+    		}
+	}
+
+- Package the application and deploy the WAR file in an external server, like tomcat.
+- Server properties, catalina.properties in the case of tomcat), will override the properties defined in application.properties
+
+
+
+
+Difference between normal JAR and Spring Boot JAR:
+--------------------------------------------------
+Normal JAR:
+	> No main manifest attribute in the manifest file in the JAR file
+	> It contains only user-defined .class files. Dependency JAR files aren't included
+
+Spring Boot app cannot be executed with a normal JAR file. For Spring Boot app, we need project .class files, dependency .class files, and class loaders.
+
+FAT, Uber, or Shadded JAR:
+--------------------------
+- These are executable JAR files that contain all the dependency .class files along with the project .class files.
+
+
+How to make Spring Boot JAR file an executable JAR file? Just add the spring boot maven plugin in the pom.xml file to make the Spring Boot JAR file a FAT JAR file:
+
+<plugin>
+   <groupId>org.springframework.boot</groupId>
+   <artifactId>spring-boot-maven-plugin</artifactId>				
+</plugin>
+
+
+
+
+Spring Boot database integration:
+---------------------------------
+In core spring, we need to configure DataSource bean alogn with JDBCTemplate. With Spring Boot, we only need to specify properties in application.properties and Spring Boot will autoconfigure DataSource and JDBCTemplate for us.
+
+By default, SPring Boot autoconfigures only one DataSource object. 
+
+	Application |------> DataSource1 --- Database1
+                    |------> DataSource2 --- Database2
+
+We need to do manual configuration for configuring more than one datasource.
+
+app.datasource.first.url=
+app.datasource.first.username=
+app.datasource.first.password=
+app.datasource.first.driver-class=
+
+app.datasource.second.url=
+app.datasource.second.username=
+app.datasource.second.password=
+app.datasource.second.driver-class=
+
+@Configuration
+public class MultipleDatasourceConfig {
+  @Bean
+  @ConfigurationOnProperties("app.datasource.first")
+  public DataSource firstDataSourceProperties() {
+    return new DataSourceProperties();
+  }
+
+  @Bean
+  @ConfigurationOnProperties("app.datasource.first")
+  public DataSource firstDataSource() {
+    return firstDataSourceProperties().initializeDataSourceBuilder().type(DataSource.class).build();
+  }
+
+  @Bean
+  public JdbcTemplate firstJdbcTemplate() {
+    return new JdbcTemplate(firstDataSource);
+  }
+}
+
+04:23

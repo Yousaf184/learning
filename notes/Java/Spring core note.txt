@@ -1,0 +1,221 @@
+Spring: Makes the development of j2ee application easier
+
+Problems with j2ee:
+-------------------
+ 1. Tight coupling
+ 2. Heavy weight
+ 3. Boilerplate code
+ 4. No support for cross cutting concerns
+
+Rod Johnson (from j2ee team and sun microsystems) came up with a framework named interface21 which was later renamed to spring. 
+
+Advantages of spring:
+---------------------
+ 1. Makes application development easier
+ 2. Light weight
+ 3. Modular (core, mvc, security, etc.)
+ 4. POJO based development (spring doesn't force to extend or implement framework classes)
+ 5. Popular
+ 6. Loose coupling
+
+Spring provides modules for different technologies to work with spring: redis, kafka, etc.
+
+
+Spring core:
+------------
+1. Base module of the spring framework. Other modules in spring are built on top of it.
+2. It is used to manage object dependencies (dependency injection, inversion of control)
+
+Configuration:
+- XML
+- Java
+- Annotation
+
+ _________________        _______________________        _____________
+|                 |      |                       |      |             |
+|  configuration  |----->|  Dependency Injector  |----->|  Container  | 
+|_________________|      |_______________________|      |_____________|
+                           (parses configuration         (contains references to beans / objects)
+                            and creates objects          (objects are stored in JVM)
+                            inside the container) 
+
+
+Types of Spring containers:
+- BeanFactory
+- ApplicationContext
+
+    			   _____________	
+                          |             |
+			  | BeanFactory |
+ 			  |_____________|   
+			         |
+              extends  __________|____________  Implements         
+                      |                       |
+	      ________|___________     _______|__________
+             | 	                  |   |                  |
+	     | ApplicationContext |   |  XMLBeanFactory  | 
+             |____________________|   |__________________|
+
+
+Implementations of ApplicationContext:
+- ClasspathXMLApplicationContext
+- AnnotationConfigApplicationContext
+- FileSystemXMLApplicationContext
+
+
+BeanFactory is only suitable for dependency injection in standalone applications.
+
+ApplicationContext is suitable for:
+- Standalone applications
+- Web applications
+- AOP
+- I18n
+- Application events 
+
+
+Drawbacks of XML configuration:
+- Need to learn XML
+- No type safety (can't catch the error at compile-time)
+- Difficult to maintain if config file becomes large
+
+Different ways to configure beans:
+- <bean>
+- @Bean
+- @Component
+ 
+@ComponentScan works with @Bean, XML config as well. 
+
+@Primary:
+Gives higher preference to a bean when there are multiple beans of the same type
+
+@Qualifier:
+Resolves the conflict if more than one bean of the same type is available in the container
+
+
+
+
+
+Bean scopes:
+------------
+Scope: Lifetime of a bean in the container
+
+Types of scopes:
+- Singleton
+- Prototype
+- Request
+- Session
+- Global
+- Application
+
+
+Singleton:
+- Single bean per bean definition per container
+- Default scope of brans
+- Singleton scope beans are created on container startup
+- Container holds a reference to singleton beans until container is destroyed
+- ConfigurableBeanFactory.SCOPE_SINGLETON
+
+Prototype:
+- New object is created whenever a bean is requested
+- Prototype beans are garbage collected when they have been used
+- ConfigurableBeanFactory.SCOPE_PROTOTYPE
+
+@Lazy annotation:
+- Beans are initialized lazily, i.e., when they are explicitly required from the container or when they are explicitly referenced by another bean
+- This annotation can be used at class level or method level
+- In XML config, we can use the lazy-init attribute
+- This annotation can also be used with @Autowired annotation
+- Introduced in spring 3.0
+
+
+
+
+Loading properties file:
+------------------------
+
+sample.properties:
+username=test
+password=123
+
+java.util.properties prop = new Properties();
+prop.load("sample.properties");
+
+String username = prop.getProperty("username");
+
+
+Loading properties using annotations:
+
+1. Load the properties file: @PropertiesSource(classpath:{filename path})
+2. Read the properties:
+    - Environment class provided by spring (org.springframework.core.env.Environment class is configured as bean in the container on application startup)
+    - @Value annotation (@Value("${db.username}"))
+
+Default value using @Value annotation: @Value("${db.username:defaultuser}")
+
+PropertySourcesPlaceholderConfigurer class recognizes the @Value annotation
+
+@Bean
+public PropertySourcesPlaceholderConfigurer placeholderConfigurer() {
+  return new PropertySourcesPlaceholderConfigurer();
+}
+
+
+
+
+@Profile annotation:
+- Execute different config files based on environment
+
+@Configuration
+@Profile("dev")
+@PropertySource("classpath:application-dev.properties")
+public class DevConfig {
+   // ...
+}
+
+
+System.setProperty("spring.profiles.active", "dev");
+or
+spring.profiles.active = dev
+
+
+Using @Profile annotation at method level:
+
+
+@Configuration
+@PropertySource("classpath:application-dev.properties")
+public class DevConfig {
+   
+   @Bean
+   @Profile("dev")
+   public PropertySourcesPlaceholderConfigurer devProps() {
+      PropertySourcesPlaceholderConfigurer dev = new PropertySourcesPlaceholderConfigurer();
+      dev.setLocation(new ClasspathResource("application-dev.properties"));
+      return dev;
+   }
+}
+
+
+
+Spring core annotations:
+------------------------
+- @Configuration
+- @Bean
+- @Component
+- @ComponentScan
+- @Autowired
+- @ImportResource
+- @Import
+- @Scope
+- @Lazy
+- @Primary
+- @Qualifier
+- @PropertySource
+- @Value
+- @Profile
+- @Required (makes setter injections mandatory)
+
+J2EE annotations:
+- @Named (<bean>, @Bean, or @Component)
+- @Inject (@Autowired) 
+
+
