@@ -1,9 +1,11 @@
 package com.ysf.eazy.school.controller;
 
-import com.ysf.eazy.school.model.ContactMessage;
-import com.ysf.eazy.school.service.ContactService;
+import com.ysf.eazy.school.model.jpa.ContactMessage;
+import com.ysf.eazy.school.service.jpa.ContactService;
+
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,19 +23,13 @@ public class ContactController {
     private final ContactService contactService;
 
     @Autowired
-    public ContactController(ContactService contactService) {
+    public ContactController(@Qualifier("contactServiceJPA") ContactService contactService) {
         this.contactService = contactService;
     }
 
     @GetMapping
     public String displayContactPage(Model model) {
-        ContactMessage c = new ContactMessage();
-        c.setName("Test Name");
-        c.setEmail("test@email.com");
-        c.setMobileNum("0512345678");
-        c.setSubject("Test subject");
-        c.setMessage("Test message");
-        model.addAttribute("contactMsg", c);
+        model.addAttribute("contactMsg", new ContactMessage());
         return "contact.html";
     }
 
@@ -60,7 +56,7 @@ public class ContactController {
 
     @GetMapping("/messages")
     public ModelAndView displayContactMessagesForAdmin(
-        @RequestParam(name = "status", defaultValue = "open", required = false) String messageStatus
+        @RequestParam(name = "status", defaultValue = "OPEN", required = false) String messageStatus
     ) {
         List<ContactMessage> contactMessageMessages = this.contactService.getContactMessages(messageStatus);
 
