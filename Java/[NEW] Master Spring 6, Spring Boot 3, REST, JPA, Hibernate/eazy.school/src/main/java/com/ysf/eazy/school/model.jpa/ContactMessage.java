@@ -1,6 +1,6 @@
 package com.ysf.eazy.school.model.jpa;
 
-import com.ysf.eazy.school.utils.ContactMessageStatusConverter;
+import com.ysf.eazy.school.converter.ContactMessageStatusConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

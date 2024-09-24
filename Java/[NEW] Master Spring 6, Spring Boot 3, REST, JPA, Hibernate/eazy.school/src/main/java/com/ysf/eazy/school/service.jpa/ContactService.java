@@ -22,8 +22,6 @@ public class ContactService {
 
     public boolean saveContactMessage(ContactMessage contactMessage) {
         contactMessage.setStatus(ContactMessage.MessageStatus.OPEN);
-        contactMessage.setCreatedAt(LocalDateTime.now());
-        contactMessage.setCreatedBy("Anonymous");
 
         ContactMessage savedContactMessage = this.contactRepository.save(contactMessage);
         return savedContactMessage.getId() != null;
@@ -47,8 +45,7 @@ public class ContactService {
 
     public boolean updateContactMessageStatus(
             Integer messageId,
-            ContactMessage.MessageStatus newStatus,
-            String updatedBy
+            ContactMessage.MessageStatus newStatus
     ) {
         Optional<ContactMessage> contactMsgOptional = this.contactRepository.findById(messageId);
         ContactMessage contactMsg = contactMsgOptional.orElse(null);
@@ -56,9 +53,6 @@ public class ContactService {
 
         if (contactMsg != null) {
             contactMsg.setStatus(newStatus);
-            contactMsg.setUpdatedBy(updatedBy);
-            contactMsg.setUpdatedAt(LocalDateTime.now());
-
             updatedContactMsg = this.contactRepository.save(contactMsg);
         }
 

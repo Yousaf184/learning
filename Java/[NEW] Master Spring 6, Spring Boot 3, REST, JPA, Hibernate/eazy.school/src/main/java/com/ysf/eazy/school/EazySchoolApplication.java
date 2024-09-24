@@ -3,6 +3,7 @@ package com.ysf.eazy.school;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
 @EnableAspectJAutoProxy
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 // the main method class
 //@EnableJpaRepositories("com.ysf.eazy.school")
 //@EntityScan("com.ysf.eazy.school")
+@EnableJpaAuditing(auditorAwareRef = "entityAuditAwareImpl")
 public class EazySchoolApplication {
 
 	public static void main(String[] args) {

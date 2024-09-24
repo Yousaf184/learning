@@ -69,7 +69,6 @@ public class ContactController {
     @GetMapping("/closeMsg")
     public String closeContactMessage(
             @RequestParam("id") Integer messageId,
-            Authentication auth,
             RedirectAttributes redirectAttributes
     ) {
         boolean isUpdated = false;
@@ -77,8 +76,7 @@ public class ContactController {
         if (messageId != null) {
             isUpdated = this.contactService.updateContactMessageStatus(
                     messageId,
-                    ContactMessage.MessageStatus.CLOSED,
-                    auth.getName()
+                    ContactMessage.MessageStatus.CLOSED
             );
        }
 
