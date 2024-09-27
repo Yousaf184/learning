@@ -1,5 +1,6 @@
 package com.ysf.eazy.school.model.jpa;
 
+import com.ysf.eazy.school.annotation.StrongPassword;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -37,6 +38,7 @@ public class Person extends BaseEntity {
 
     @NotBlank(message = "Password must not be blank")
     @Size(message = "Password must be at least 5 characters long")
+    @StrongPassword // custom validation annotation
     @Column(name = "pwd")
     private String password;
     @Transient
