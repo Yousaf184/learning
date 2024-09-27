@@ -51,7 +51,8 @@ Author URL: http://w3layouts.com
             <form th:action="@{/login}" method="post" class="signin-form">
               <div class="col-md-8 login-center input-grids">
                 <li
-                  class="alert alert-danger"
+                  class="alert"
+                  th:classappend="${isSuccessMsg == true} ? alert-success : alert-danger"
                   role="alert"
                   th:if="${!#strings.isEmpty(message)}"
                   th:text="${message}"
@@ -75,7 +76,9 @@ Author URL: http://w3layouts.com
                 <button class="btn btn-style btn-style-3 text-left">
                   Log In
                 </button>
-                <a class="new-user text-right" href="">New User?</a>
+                <a th:href="@{/user/register}" class="new-user text-right"
+                  >New User?</a
+                >
               </div>
             </form>
           </div>

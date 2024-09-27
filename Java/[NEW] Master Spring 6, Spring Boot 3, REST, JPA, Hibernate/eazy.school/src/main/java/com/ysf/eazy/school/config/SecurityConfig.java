@@ -19,6 +19,7 @@ public class SecurityConfig {
         httpSecurity
                 .csrf(csrfConfigurer -> csrfConfigurer
                         .ignoringRequestMatchers("/contact/saveMsg")
+                        .ignoringRequestMatchers("/user/register")
 //                        .ignoringRequestMatchers(PathRequest.toH2Console()) // needed for H2 database
                 )
                 .authorizeHttpRequests(requests -> requests
@@ -30,16 +31,18 @@ public class SecurityConfig {
                         .requestMatchers("/about").permitAll()
                         .requestMatchers("/courses").permitAll()
                         .requestMatchers("/assets/**").permitAll()
+                        .requestMatchers("/user/register").permitAll()
+                        .requestMatchers("/login").permitAll()
 //                        .requestMatchers(PathRequest.toH2Console()).permitAll() // needed for H2 database
                         .anyRequest().authenticated()
                 )
                 .formLogin(formLoginConfigurer -> formLoginConfigurer
                         .loginPage("/login")
                         .defaultSuccessUrl("/dashboard")
-                        .failureUrl("/login?error=true").permitAll()
+                        .failureUrl("/login?error=true")
                 )
                 .logout(logoutConfigurer -> logoutConfigurer
-                        .logoutSuccessUrl("/login?logout=true").permitAll()
+                        .logoutSuccessUrl("/login?logout=true")
                         .invalidateHttpSession(true)
                 )
                 .httpBasic(Customizer.withDefaults());
