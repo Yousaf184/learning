@@ -1,5 +1,6 @@
 package com.ysf.eazy.school.model.jpa;
 
+import com.ysf.eazy.school.annotation.FieldsValueMatch;
 import com.ysf.eazy.school.annotation.StrongPassword;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -15,6 +16,18 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+@FieldsValueMatch.FieldGroup({
+        @FieldsValueMatch(
+                message = "Password and confirm password do not match",
+                field = "password",
+                matchField = "confirmPassword"
+        ),
+        @FieldsValueMatch(
+                message = "Email and confirm email do not match",
+                field = "email",
+                matchField = "confirmEmail"
+        )
+})
 public class Person extends BaseEntity {
 
     @Id
