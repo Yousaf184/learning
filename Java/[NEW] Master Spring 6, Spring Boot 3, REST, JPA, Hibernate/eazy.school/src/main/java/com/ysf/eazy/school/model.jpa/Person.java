@@ -56,4 +56,12 @@ public class Person extends BaseEntity {
     private String password;
     @Transient
     private String confirmPassword;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, targetEntity = Role.class)
+    @JoinColumn(name = "role_id", referencedColumnName = "role_id", nullable = false)
+    private Role role;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = Address.class)
+    @JoinColumn(name = "address_id", referencedColumnName = "address_id")
+    private Address address;
 }
