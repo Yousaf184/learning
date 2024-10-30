@@ -110,7 +110,7 @@ Types of scopes:
 
 Singleton:
 - Single bean per bean definition per container
-- Default scope of brans
+- Default scope of beans
 - Singleton scope beans are created on container startup
 - Container holds a reference to singleton beans until container is destroyed
 - ConfigurableBeanFactory.SCOPE_SINGLETON
