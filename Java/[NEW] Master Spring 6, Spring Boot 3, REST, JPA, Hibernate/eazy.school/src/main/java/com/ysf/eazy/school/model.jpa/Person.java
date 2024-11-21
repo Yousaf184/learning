@@ -32,6 +32,7 @@ public class Person extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "person_id")
     private Integer id;
 
     @NotBlank(message = "Name must not be blank")
@@ -57,7 +58,7 @@ public class Person extends BaseEntity {
     @Transient
     private String confirmPassword;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, targetEntity = Role.class)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST, targetEntity = Role.class)
     @JoinColumn(name = "role_id", referencedColumnName = "role_id", nullable = false)
     private Role role;
 

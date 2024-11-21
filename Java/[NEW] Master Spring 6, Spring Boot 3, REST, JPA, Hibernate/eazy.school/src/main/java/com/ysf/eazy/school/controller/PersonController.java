@@ -40,7 +40,7 @@ public class PersonController {
             return "register.html";
         }
 
-        boolean isRegistered = false;
+        boolean isRegistered = this.personService.registerUser(user);
 
         String message = isRegistered
                 ? "Registration successful"

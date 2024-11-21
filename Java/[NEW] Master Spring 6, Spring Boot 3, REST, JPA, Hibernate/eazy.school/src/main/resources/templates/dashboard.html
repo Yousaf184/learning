@@ -49,7 +49,11 @@ Author URL: http://w3layouts.com
           style="max-width: 500px"
         >
           <h3 class="title-style" th:text="${'Welcome - ' + username}"></h3>
-          <p class="" th:text="${'You logged in as - ' + roles}"></p>
+          <p
+            class=""
+            th:each="role : ${roles}"
+            th:text="${'You logged in as - ' + role}"
+          ></p>
         </div>
       </div>
     </section>
