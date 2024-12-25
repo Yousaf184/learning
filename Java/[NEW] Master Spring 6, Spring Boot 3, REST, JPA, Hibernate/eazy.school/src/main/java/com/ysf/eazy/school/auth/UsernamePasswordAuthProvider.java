@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -20,9 +21,12 @@ public class UsernamePasswordAuthProvider implements AuthenticationProvider {
 
     private final PersonRepository personRepository;
 
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
-    public UsernamePasswordAuthProvider(PersonRepository personRepository) {
+    public UsernamePasswordAuthProvider(PersonRepository personRepository, PasswordEncoder passwordEncoder) {
         this.personRepository = personRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -32,7 +36,7 @@ public class UsernamePasswordAuthProvider implements AuthenticationProvider {
 
         Person person = this.personRepository.findByEmail(userEmail);
 
-        if (person != null && person.getPassword().equals(userPassword)) {
+        if (person != null && this.passwordEncoder.matches(userPassword, person.getPassword())) {
             List<GrantedAuthority> grantedAuthorityList = new ArrayList<>();
             grantedAuthorityList.add(new SimpleGrantedAuthority("ROLE_" + person.getRole().getRoleName()));
 
