@@ -1,45 +1,41 @@
-package com.ysf.eazy.school.model.jpa;
+package com.ysf.eazy.school.dto;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Entity
-@Table(name = "address")
-@Getter
-@Setter
-@NoArgsConstructor
-public class Address extends BaseEntity {
+@Data
+public class Profile {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "address_id")
-    private Integer id;
+    @NotBlank(message = "Name must not be blank")
+    @Size(min = 3, message = "Name must be at least 3 characters long")
+    private String name;
+
+    @NotBlank(message = "Mobile number must not be blank")
+    @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile number must be 10 digits")
+    private String mobileNumber;
+
+    @NotBlank(message = "Email must not be blank")
+    @Email(message = "Please provide a valid email address" )
+    private String email;
 
     @NotBlank(message = "Address1 must not be blank")
     @Size(min = 5, message = "Address1 must be at least 5 characters long")
-    @Column(name = "address1")
     private String address1;
 
-    @Column(name = "address2")
     private String address2;
 
     @NotBlank(message = "City must not be blank")
     @Size(min = 5, message = "City must be at least 5 characters long")
-    @Column(name = "city")
     private String city;
 
     @NotBlank(message = "State must not be blank")
     @Size(min = 5, message = "State must be at least 5 characters long")
-    @Column(name = "state")
     private String state;
 
     @NotBlank(message = "Zip Code must not be blank")
     @Pattern(regexp = "(^$|[0-9]{5})", message = "Zip Code must be 5 digits")
-    @Column(name = "zip_code")
     private String zipCode;
 }

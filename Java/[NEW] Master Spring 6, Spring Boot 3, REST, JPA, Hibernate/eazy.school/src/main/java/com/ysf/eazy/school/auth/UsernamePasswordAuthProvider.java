@@ -40,7 +40,7 @@ public class UsernamePasswordAuthProvider implements AuthenticationProvider {
             List<GrantedAuthority> grantedAuthorityList = new ArrayList<>();
             grantedAuthorityList.add(new SimpleGrantedAuthority("ROLE_" + person.getRole().getRoleName()));
 
-            return new UsernamePasswordAuthenticationToken(person.getName(), person.getPassword(), grantedAuthorityList);
+            return new UsernamePasswordAuthenticationToken(person.getEmail(), person.getPassword(), grantedAuthorityList);
         } else {
             throw new BadCredentialsException("Invalid username/password combination");
         }
