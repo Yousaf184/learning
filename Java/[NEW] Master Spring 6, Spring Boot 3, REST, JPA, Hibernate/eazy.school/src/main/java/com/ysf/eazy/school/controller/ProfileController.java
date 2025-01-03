@@ -2,7 +2,7 @@ package com.ysf.eazy.school.controller;
 
 import com.ysf.eazy.school.dto.Profile;
 import com.ysf.eazy.school.model.jpa.Person;
-import com.ysf.eazy.school.service.ProfileService;
+import com.ysf.eazy.school.service.jpa.ProfileService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

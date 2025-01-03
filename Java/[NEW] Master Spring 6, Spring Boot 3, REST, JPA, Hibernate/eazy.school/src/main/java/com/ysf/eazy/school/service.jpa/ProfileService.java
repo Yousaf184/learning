@@ -1,4 +1,4 @@
-package com.ysf.eazy.school.service;
+package com.ysf.eazy.school.service.jpa;
 
 import com.ysf.eazy.school.dao.jpa.PersonRepository;
 import com.ysf.eazy.school.dto.Profile;
