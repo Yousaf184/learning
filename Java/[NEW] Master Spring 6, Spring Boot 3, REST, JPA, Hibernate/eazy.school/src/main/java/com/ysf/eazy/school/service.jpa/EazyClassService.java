@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EazyClassService {
@@ -23,5 +24,11 @@ public class EazyClassService {
 
     public void saveNewClass(EazyClass newClass) {
         this.eazyClassRepository.save(newClass);
+    }
+
+    public void deleteClassById(Integer classId) {
+        Optional<EazyClass> classToDeleteOpt = this.eazyClassRepository.findById(classId);
+        classToDeleteOpt.ifPresent(EazyClass::removeAllStudents);
+        this.eazyClassRepository.deleteById(classId);
     }
 }

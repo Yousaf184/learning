@@ -45,4 +45,11 @@ public class EazyClass extends BaseEntity {
         this.students.removeIf(st -> Objects.equals(st.getId(), student.getId()));
         student.setEazyClass(null);
     }
+
+    public void removeAllStudents() {
+        for (Person student : this.students) {
+            student.setEazyClass(null);
+        }
+        this.students.clear();
+    }
 }
