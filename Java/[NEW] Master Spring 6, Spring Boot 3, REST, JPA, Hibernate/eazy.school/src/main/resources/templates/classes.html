@@ -38,7 +38,10 @@
     <!-- //inner banner -->
 
     <div class="site-section">
-      <div class="table-responsive-class">
+      <div
+        class="table-responsive-class"
+        style="width: 80%; margin-inline: auto"
+      >
         <div class="row mb-4">
           <div class="overview-wrap">
             <h3 class="heading-21921">EazySchool Class Details</h3>
@@ -95,6 +98,14 @@
                       required
                       placeholder="Enter class name"
                     />
+                    <ul>
+                      <li
+                        class="alert alert-danger"
+                        role="alert"
+                        th:each="error : ${#fields.errors('name')}"
+                        th:text="${error}"
+                      />
+                    </ul>
                   </div>
                 </div>
                 <div
@@ -119,18 +130,18 @@
           </thead>
           <tbody>
             <tr th:each="eazyClass: ${eazyClasses}">
-              <td th:text="${eazyClass.classId}"></td>
+              <td th:text="${eazyClass.id}"></td>
               <td th:text="${eazyClass.name}"></td>
               <td>
                 <a
-                  th:href="@{/admin/class/students(classId=${eazyClass.classId})}"
+                  th:href="@{/admin/class/students(classId=${eazyClass.id})}"
                   class="btn btn-success"
                   >VIEW</a
                 >
               </td>
               <td>
                 <a
-                  th:href="@{/admin/class(id=${eazyClass.classId})}"
+                  th:href="@{/admin/class(id=${eazyClass.id})}"
                   class="btn btn-warning"
                   >DELETE</a
                 >
@@ -230,6 +241,15 @@
     <!-- bootstrap -->
     <script src="/assets/js/bootstrap.min.js"></script>
     <!-- //bootstrap -->
+
+    <script>
+      if (window.location.pathname === "/admin/class") {
+        const openAddClassPopupBtn = document.querySelector(
+          '[data-bs-target="#createClass"]'
+        );
+        openAddClassPopupBtn.click();
+      }
+    </script>
     <!-- //Js scripts -->
   </body>
 </html>
