@@ -34,4 +34,14 @@ public class PersonService {
 
         return savedPerson.getId() != null;
     }
+
+    public Person getStudentByEmail(String email) {
+        Role studentRole = this.roleRepository.findByRoleName("STUDENT");
+        return this.personRepository.findByEmailAndRole(email, studentRole);
+    }
+
+    public Person getStudentById(Integer studentId) {
+        Role studentRole = this.roleRepository.findByRoleName("STUDENT");
+        return this.personRepository.findByIdAndRole(studentId, studentRole);
+    }
 }

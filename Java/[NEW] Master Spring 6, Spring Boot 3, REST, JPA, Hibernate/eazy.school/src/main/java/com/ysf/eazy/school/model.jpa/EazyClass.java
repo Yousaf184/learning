@@ -31,10 +31,13 @@ public class EazyClass extends BaseEntity {
         mappedBy = "eazyClass",
         fetch = FetchType.LAZY,
         cascade = CascadeType.PERSIST,
-        orphanRemoval = true,
         targetEntity = Person.class
     )
     private Set<Person> students;
+
+    public EazyClass(Integer classId) {
+        this.id = classId;
+    }
 
     public void addStudent(Person student) {
         this.students.add(student);

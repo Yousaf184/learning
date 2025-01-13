@@ -1,23 +1,32 @@
 package com.ysf.eazy.school.controller;
 
 import com.ysf.eazy.school.model.jpa.EazyClass;
+import com.ysf.eazy.school.model.jpa.Person;
 import com.ysf.eazy.school.service.jpa.EazyClassService;
+import com.ysf.eazy.school.service.jpa.PersonService;
+import com.ysf.eazy.school.utils.PersonUtils;
+import com.ysf.eazy.school.validation.PersonEmailValidationGroup;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
 
     private final EazyClassService eazyClassService;
+    private final PersonService personService;
 
     @Autowired
-    public AdminController(EazyClassService eazyClassService) {
+    public AdminController(EazyClassService eazyClassService, PersonService personService) {
         this.eazyClassService = eazyClassService;
+        this.personService = personService;
     }
 
     @GetMapping("/classes")
@@ -39,7 +48,7 @@ public class AdminController {
             return "classes.html";
         }
 
-        this.eazyClassService.saveNewClass(newClass);
+        this.eazyClassService.saveClass(newClass);
 
         return "redirect:/admin/classes";
     }
@@ -48,5 +57,79 @@ public class AdminController {
     public String deleteClassById(@RequestParam(name = "classId") Integer classId) {
         this.eazyClassService.deleteClassById(classId);
         return "redirect:/admin/classes";
+    }
+
+    @GetMapping("/class/students")
+    public ModelAndView displayClassStudents(
+        @RequestParam(name = "classId") Integer classId,
+        Model model
+    ) {
+        ModelAndView modelAndView = new ModelAndView("students.html");
+        modelAndView.addObject("person", new Person());
+
+        EazyClass eazyClass = this.eazyClassService.getEazyClassById(classId);
+        modelAndView.addObject("eazyClass", eazyClass);
+
+        if (model.containsAttribute("success")) {
+            modelAndView.addObject("success", model.getAttribute("success"));
+        }
+
+        return modelAndView;
+    }
+
+    @PostMapping("/class/student")
+    public String addStudentToClass(
+        @Validated(PersonEmailValidationGroup.class) @ModelAttribute("person") Person student,
+        @RequestParam(name = "classId") Integer classId,
+        Model model,
+        RedirectAttributes redirectAttributes,
+        Errors errors
+    ) {
+        if (errors.hasErrors()) {
+            return "students.html";
+        }
+
+        Person studentToBeAdded = this.personService.getStudentByEmail(student.getEmail());
+        String errorMsg = PersonUtils.validateStudentBeforeAddingInClass(studentToBeAdded, classId);
+
+        if (errorMsg != null) {
+            model.addAttribute("error", errorMsg);
+            model.addAttribute("eazyClass", new EazyClass(classId));
+            return "students.html";
+        }
+
+        EazyClass classToAddStudent = this.eazyClassService.getEazyClassById(classId);
+        classToAddStudent.addStudent(studentToBeAdded);
+
+        this.eazyClassService.saveClass(classToAddStudent);
+
+        redirectAttributes.addFlashAttribute("success", "student added successfully");
+        return "redirect:/admin/class/students?classId=" + classId;
+    }
+
+    @GetMapping("/class/student/remove")
+    public String removeStudentFromClass(
+        @RequestParam(name = "studentId") Integer studentId,
+        @RequestParam(name = "classId") Integer classId,
+        Model model,
+        RedirectAttributes redirectAttributes
+    ) {
+        Person student = this.personService.getStudentById(studentId);
+        String errorMsg = PersonUtils.validateStudentBeforeRemovingFromClass(student, classId);
+
+        if (errorMsg != null) {
+            model.addAttribute("errorMsg", errorMsg);
+            return "students.html";
+        }
+
+        EazyClass classToRemoveFrom = this.eazyClassService.getEazyClassById(classId);
+        classToRemoveFrom.removeStudent(student);
+
+        this.eazyClassService.saveClass(classToRemoveFrom);
+
+        String message = "Student removed successfully";
+        redirectAttributes.addFlashAttribute("success", message);
+
+        return "redirect:/admin/class/students?classId=" + classId;
     }
 }

@@ -2,6 +2,7 @@ package com.ysf.eazy.school.model.jpa;
 
 import com.ysf.eazy.school.annotation.FieldsValueMatch;
 import com.ysf.eazy.school.annotation.StrongPassword;
+import com.ysf.eazy.school.validation.PersonEmailValidationGroup;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -39,8 +40,8 @@ public class Person extends BaseEntity {
     @Size(message = "Name must be at least 3 characters long")
     private String name;
 
-    @NotBlank(message = "Email must not be blank")
-    @Email(message = "Provided email is not valid")
+    @NotBlank(message = "Email must not be blank", groups = PersonEmailValidationGroup.class)
+    @Email(message = "Provided email is not valid", groups = PersonEmailValidationGroup.class)
     private String email;
     @Transient
     private String confirmEmail;
@@ -62,7 +63,7 @@ public class Person extends BaseEntity {
     @JoinColumn(name = "role_id", referencedColumnName = "role_id", nullable = false)
     private Role role;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, targetEntity = Address.class)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, targetEntity = Address.class)
     @JoinColumn(name = "address_id", referencedColumnName = "address_id")
     private Address address;
 

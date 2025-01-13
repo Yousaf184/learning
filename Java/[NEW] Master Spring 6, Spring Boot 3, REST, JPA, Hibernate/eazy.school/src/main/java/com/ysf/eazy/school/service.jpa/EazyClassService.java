@@ -22,13 +22,22 @@ public class EazyClassService {
         return this.eazyClassRepository.findAll();
     }
 
-    public void saveNewClass(EazyClass newClass) {
-        this.eazyClassRepository.save(newClass);
+    public void saveClass(EazyClass eazyClass) {
+        this.eazyClassRepository.save(eazyClass);
     }
 
     public void deleteClassById(Integer classId) {
         Optional<EazyClass> classToDeleteOpt = this.eazyClassRepository.findById(classId);
         classToDeleteOpt.ifPresent(EazyClass::removeAllStudents);
         this.eazyClassRepository.deleteById(classId);
+    }
+
+    public EazyClass getEazyClassById(Integer classId) {
+        Optional<EazyClass> eazyClassOpt = this.eazyClassRepository.findById(classId);
+
+        return eazyClassOpt.orElseThrow(() -> {
+            String message = "Class with the given id " + classId + " not found";
+            return new IllegalArgumentException(message);
+        });
     }
 }
