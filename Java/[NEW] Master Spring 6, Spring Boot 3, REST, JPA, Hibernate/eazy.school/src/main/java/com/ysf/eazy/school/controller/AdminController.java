@@ -1,5 +1,6 @@
 package com.ysf.eazy.school.controller;
 
+import com.ysf.eazy.school.model.jpa.Course;
 import com.ysf.eazy.school.model.jpa.EazyClass;
 import com.ysf.eazy.school.model.jpa.Person;
 import com.ysf.eazy.school.service.jpa.EazyClassService;
@@ -131,5 +132,12 @@ public class AdminController {
         redirectAttributes.addFlashAttribute("success", message);
 
         return "redirect:/admin/class/students?classId=" + classId;
+    }
+
+    @GetMapping("/courses")
+    public ModelAndView displayCoursesPage() {
+        ModelAndView modelAndView = new ModelAndView("courses_secure");
+        modelAndView.addObject("course", new Course());
+        return modelAndView;
     }
 }
