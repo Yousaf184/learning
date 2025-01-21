@@ -178,11 +178,67 @@ public class AdminController {
 
         Course course = this.courseService.getCourseById(courseId);
         modelAndView.addObject("course", course);
-//
-//        if (model.containsAttribute("success")) {
-//            modelAndView.addObject("success", model.getAttribute("success"));
-//        }
+
+        if (model.containsAttribute("success")) {
+            modelAndView.addObject("success", model.getAttribute("success"));
+        }
 
         return modelAndView;
+    }
+
+    @PostMapping("/course/student")
+    public String addStudentToCourse(
+        @Validated(PersonEmailValidationGroup.class) @ModelAttribute("student") Person student,
+        @RequestParam(name = "courseId") Integer courseId,
+        Model model,
+        RedirectAttributes redirectAttributes,
+        Errors errors
+    ) {
+        if (errors.hasErrors()) {
+            return "course_students.html";
+        }
+
+        Person studentToBeAdded = this.personService.getStudentByEmail(student.getEmail());
+        String errorMsg = PersonUtils.validateStudentBeforeAddingInCourse(studentToBeAdded, courseId);
+
+        if (errorMsg != null) {
+            model.addAttribute("error", errorMsg);
+            model.addAttribute("course", new Course(courseId));
+            return "course_students.html";
+        }
+
+        Course courseToAddStudent = this.courseService.getCourseById(courseId);
+        studentToBeAdded.addCourseToStudent(courseToAddStudent);
+
+        this.personService.updateStudent(studentToBeAdded);
+
+        redirectAttributes.addFlashAttribute("success", "student added successfully");
+        return "redirect:/admin/course/students?courseId=" + courseId;
+    }
+
+    @GetMapping("/course/student/remove")
+    public String removeStudentFromCourse(
+        @RequestParam(name = "studentId") Integer studentId,
+        @RequestParam(name = "courseId") Integer courseId,
+        Model model,
+        RedirectAttributes redirectAttributes
+    ) {
+        Person student = this.personService.getStudentById(studentId);
+        String errorMsg = PersonUtils.validateStudentBeforeRemovingFromCourse(student, courseId);
+
+        if (errorMsg != null) {
+            model.addAttribute("errorMsg", errorMsg);
+            return "course_students.html";
+        }
+
+        Course courseToRemove = this.courseService.getCourseById(courseId);
+        student.removeCourseFromStudent(courseToRemove);
+
+        this.personService.updateStudent(student);
+
+        String message = "Student removed from course successfully";
+        redirectAttributes.addFlashAttribute("success", message);
+
+        return "redirect:/admin/course/students?courseId=" + courseId;
     }
 }

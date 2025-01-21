@@ -44,4 +44,8 @@ public class PersonService {
         Role studentRole = this.roleRepository.findByRoleName("STUDENT");
         return this.personRepository.findByIdAndRole(studentId, studentRole);
     }
+
+    public void updateStudent(Person student) {
+        this.personRepository.save(student);
+    }
 }

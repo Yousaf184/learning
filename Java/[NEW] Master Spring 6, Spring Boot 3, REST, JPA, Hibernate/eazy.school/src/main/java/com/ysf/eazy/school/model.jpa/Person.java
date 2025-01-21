@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -85,4 +86,20 @@ public class Person extends BaseEntity {
         inverseJoinColumns = @JoinColumn(name = "course_id", referencedColumnName = "course_id")
     )
     private Set<Course> courses = new HashSet<>();
+
+    public void addCourseToStudent(Course course) {
+        this.courses.add(course);
+        course.getStudents().add(this);
+    }
+
+    public void removeCourseFromStudent(Course courseToRemove) {
+        this.courses.removeIf(
+            course -> Objects.equals(course.getId(), courseToRemove.getId())
+        );
+        courseToRemove.getStudents().removeIf(
+            student -> Objects.equals(student.getId(), this.getId())
+        );
+    }
+
+
 }

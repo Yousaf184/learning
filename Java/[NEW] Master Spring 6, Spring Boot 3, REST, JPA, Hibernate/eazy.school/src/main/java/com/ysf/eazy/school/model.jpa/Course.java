@@ -28,4 +28,8 @@ public class Course extends BaseEntity {
 
     @ManyToMany(mappedBy = "courses")
     private Set<Person> students = new HashSet<>();
+
+    public Course(Integer id) {
+        this.id = id;
+    }
 }
