@@ -167,4 +167,22 @@ public class AdminController {
 
         return "redirect:/admin/courses";
     }
+
+    @GetMapping("/course/students")
+    public ModelAndView displayCourseStudents(
+        @RequestParam(name = "courseId") Integer courseId,
+        Model model
+    ) {
+        ModelAndView modelAndView = new ModelAndView("course_students.html");
+        modelAndView.addObject("student", new Person());
+
+        Course course = this.courseService.getCourseById(courseId);
+        modelAndView.addObject("course", course);
+//
+//        if (model.containsAttribute("success")) {
+//            modelAndView.addObject("success", model.getAttribute("success"));
+//        }
+
+        return modelAndView;
+    }
 }

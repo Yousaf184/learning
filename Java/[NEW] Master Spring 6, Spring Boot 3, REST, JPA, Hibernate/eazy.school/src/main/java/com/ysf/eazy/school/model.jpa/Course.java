@@ -27,5 +27,5 @@ public class Course extends BaseEntity {
     private String fees;
 
     @ManyToMany(mappedBy = "courses")
-    private Set<Person> persons = new HashSet<>();
+    private Set<Person> students = new HashSet<>();
 }
