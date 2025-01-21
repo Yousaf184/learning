@@ -43,6 +43,15 @@
         style="width: 80%; margin-inline: auto"
       >
         <div class="row mb-4">
+          <ul>
+            <li
+              class="alert alert-success"
+              role="alert"
+              th:if="${!#strings.isEmpty(success)}"
+              th:text="${success}"
+            />
+          </ul>
+
           <div class="overview-wrap">
             <h3 class="heading-21921">EazySchool Course Details</h3>
             <button
@@ -77,7 +86,7 @@
                 </button>
               </div>
               <form
-                th:action="@{/admin/addNewCourse}"
+                th:action="@{/admin/course}"
                 method="post"
                 class="signin-form"
                 th:object="${course}"
@@ -130,12 +139,12 @@
           </thead>
           <tbody>
             <tr th:each="course: ${courses}">
-              <td th:text="${course.courseId}"></td>
+              <td th:text="${course.id}"></td>
               <td th:text="${course.name}"></td>
               <td th:text="${course.fees}"></td>
               <td>
                 <a
-                  th:href="@{/admin/viewStudents(id=${course.courseId})}"
+                  th:href="@{/admin/viewStudents(id=${course.id})}"
                   class="btn btn-warning"
                   >VIEW STUDENTS</a
                 >

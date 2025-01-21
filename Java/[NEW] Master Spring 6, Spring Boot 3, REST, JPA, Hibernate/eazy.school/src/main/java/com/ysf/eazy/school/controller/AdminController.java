@@ -3,6 +3,7 @@ package com.ysf.eazy.school.controller;
 import com.ysf.eazy.school.model.jpa.Course;
 import com.ysf.eazy.school.model.jpa.EazyClass;
 import com.ysf.eazy.school.model.jpa.Person;
+import com.ysf.eazy.school.service.jpa.CourseService;
 import com.ysf.eazy.school.service.jpa.EazyClassService;
 import com.ysf.eazy.school.service.jpa.PersonService;
 import com.ysf.eazy.school.utils.PersonUtils;
@@ -23,11 +24,17 @@ public class AdminController {
 
     private final EazyClassService eazyClassService;
     private final PersonService personService;
+    private final CourseService courseService;
 
     @Autowired
-    public AdminController(EazyClassService eazyClassService, PersonService personService) {
+    public AdminController(
+        EazyClassService eazyClassService,
+        PersonService personService,
+        CourseService courseService
+    ) {
         this.eazyClassService = eazyClassService;
         this.personService = personService;
+        this.courseService = courseService;
     }
 
     @GetMapping("/classes")
@@ -135,9 +142,29 @@ public class AdminController {
     }
 
     @GetMapping("/courses")
-    public ModelAndView displayCoursesPage() {
+    public ModelAndView displayCoursesPage(Model model) {
         ModelAndView modelAndView = new ModelAndView("courses_secure");
+
         modelAndView.addObject("course", new Course());
+        modelAndView.addObject("courses", this.courseService.getAllCourses());
+
+        if (model.containsAttribute("success")) {
+            modelAndView.addObject("success", model.getAttribute("success"));
+        }
+
         return modelAndView;
+    }
+
+    @PostMapping("/course")
+    public String saveNewCourse(
+        @ModelAttribute("course") Course course,
+        RedirectAttributes redirectAttributes
+    ) {
+        this.courseService.saveNewCourse(course);
+
+        String successMsg = "Course saved successfully";
+        redirectAttributes.addFlashAttribute("success", successMsg);
+
+        return "redirect:/admin/courses";
     }
 }
