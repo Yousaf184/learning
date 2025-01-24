@@ -27,6 +27,10 @@ public class DashboardController {
         model.addAttribute("username", loggedInUser.getName());
         model.addAttribute("roles", auth.getAuthorities().toString());
 
+        if (loggedInUser.getEazyClass() != null) {
+            model.addAttribute("enrolledClass", loggedInUser.getEazyClass().getName());
+        }
+
         return "dashboard.html";
     }
 }

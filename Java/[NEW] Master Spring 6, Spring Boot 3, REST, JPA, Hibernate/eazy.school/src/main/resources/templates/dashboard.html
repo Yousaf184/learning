@@ -54,6 +54,11 @@ Author URL: http://w3layouts.com
             th:each="role : ${roles}"
             th:text="${'You logged in as - ' + role}"
           ></p>
+          <p
+            class=""
+            th:if="${!#strings.isEmpty(enrolledClass)}"
+            th:text="${'Your assigned class is - [' + enrolledClass +']'}"
+          ></p>
         </div>
       </div>
     </section>
@@ -126,6 +131,26 @@ Author URL: http://w3layouts.com
             >
               <a th:href="@{/admin/courses}">
                 <div class="overview-item overview-item--c2">
+                  <div class="overview__inner">
+                    <div class="overview-box clearfix">
+                      <div class="icon">
+                        <i class="fas fa-envelope-open-text"></i>
+                      </div>
+                      <div class="text">
+                        <h2>Courses</h2>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </div>
+
+            <div
+              class="col-sm-6 col-lg-3"
+              sec:authorize="hasRole('ROLE_STUDENT')"
+            >
+              <a th:href="@{/student/courses}">
+                <div class="overview-item overview-item--c3">
                   <div class="overview__inner">
                     <div class="overview-box clearfix">
                       <div class="icon">

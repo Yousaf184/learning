@@ -78,7 +78,7 @@ public class Person extends BaseEntity {
     @ManyToMany(
         targetEntity = Course.class,
         cascade = {CascadeType.PERSIST, CascadeType.MERGE},
-        fetch = FetchType.LAZY
+        fetch = FetchType.EAGER
     )
     @JoinTable(
         name = "person_courses",
