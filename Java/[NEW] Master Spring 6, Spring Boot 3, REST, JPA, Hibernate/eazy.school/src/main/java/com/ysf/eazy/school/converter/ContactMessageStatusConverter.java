@@ -18,8 +18,8 @@ public class ContactMessageStatusConverter implements AttributeConverter<Contact
     @Override
     public ContactMessage.MessageStatus convertToEntityAttribute(String status) {
         return switch (status) {
-            case "open" -> ContactMessage.MessageStatus.OPEN;
-            case "closed" -> ContactMessage.MessageStatus.CLOSED;
+            case "Open", "open"     -> ContactMessage.MessageStatus.OPEN;
+            case "Closed", "closed" -> ContactMessage.MessageStatus.CLOSED;
             default -> throw new IllegalArgumentException(status + " is not a valid message status");
         };
     }
