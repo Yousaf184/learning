@@ -142,11 +142,15 @@ public class AdminController {
     }
 
     @GetMapping("/courses")
-    public ModelAndView displayCoursesPage(Model model) {
+    public ModelAndView displayCoursesPage(
+        Model model,
+        @RequestParam(name = "sort", required = false, defaultValue = "asc") String sortOrder
+    ) {
         ModelAndView modelAndView = new ModelAndView("courses_secure");
 
         modelAndView.addObject("course", new Course());
-        modelAndView.addObject("courses", this.courseService.getAllCourses());
+        modelAndView.addObject("courses", this.courseService.getAllCourses(sortOrder));
+        modelAndView.addObject("currentSortOrder", sortOrder);
 
         if (model.containsAttribute("success")) {
             modelAndView.addObject("success", model.getAttribute("success"));
@@ -165,7 +169,7 @@ public class AdminController {
         String successMsg = "Course saved successfully";
         redirectAttributes.addFlashAttribute("success", successMsg);
 
-        return "redirect:/admin/courses";
+        return "redirect:/admin/courses?sort=asc";
     }
 
     @GetMapping("/course/students")

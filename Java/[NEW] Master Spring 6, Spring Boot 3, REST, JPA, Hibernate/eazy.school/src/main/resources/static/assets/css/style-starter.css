@@ -21546,3 +21546,24 @@ form button.nav-link {
   background: none;
   border: none;
 }
+
+/* styles for table column headers which include link tags for sorting by column */
+thead th[data-sort] a {
+  position: relative;
+  color: white;
+}
+
+thead th[data-sort] a:after {
+  position: absolute;
+  font-size: 12px;
+  margin-left: 5px;
+  top: 2px;
+}
+
+thead th[data-sort="asc"] a:after {
+  content: "▲";
+}
+
+thead th[data-sort="desc"] a:after {
+  content: "▼";
+}

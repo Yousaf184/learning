@@ -22,8 +22,10 @@ public class CourseService {
         this.courseRepository.save(course);
     }
 
-    public List<Course> getAllCourses() {
-        return this.courseRepository.findAll();
+    public List<Course> getAllCourses(String sortOrder) {
+        return sortOrder.equalsIgnoreCase("asc")
+                ? this.courseRepository.findByOrderByName()
+                : this.courseRepository.findByOrderByNameDesc();
     }
 
     public Course getCourseById(Integer courseId) {
