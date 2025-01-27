@@ -38,11 +38,14 @@ public class AdminController {
     }
 
     @GetMapping("/classes")
-    public ModelAndView displayClasses() {
+    public ModelAndView displayClasses(
+        @RequestParam(name = "sort", required = false, defaultValue = "asc") String sortOrder
+    ) {
         ModelAndView modelAndView = new ModelAndView("classes.html");
 
         modelAndView.addObject("eazyClass", new EazyClass());
-        modelAndView.addObject("eazyClasses", this.eazyClassService.getAllClasses());
+        modelAndView.addObject("eazyClasses", this.eazyClassService.getAllClasses(sortOrder));
+        modelAndView.addObject("currentSortOrder", sortOrder);
 
         return modelAndView;
     }
@@ -58,13 +61,13 @@ public class AdminController {
 
         this.eazyClassService.saveClass(newClass);
 
-        return "redirect:/admin/classes";
+        return "redirect:/admin/classes?sort=asc";
     }
 
     @GetMapping("/delete/class")
     public String deleteClassById(@RequestParam(name = "classId") Integer classId) {
         this.eazyClassService.deleteClassById(classId);
-        return "redirect:/admin/classes";
+        return "redirect:/admin/classes?sort=asc";
     }
 
     @GetMapping("/class/students")

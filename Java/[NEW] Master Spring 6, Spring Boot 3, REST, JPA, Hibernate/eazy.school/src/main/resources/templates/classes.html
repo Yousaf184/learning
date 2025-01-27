@@ -123,7 +123,13 @@
           <thead class="table-dark">
             <tr>
               <th scope="col">Class ID</th>
-              <th scope="col">Class Name</th>
+              <th scope="col" th:data-sort="${currentSortOrder}">
+                <a
+                  th:href="@{/admin/classes(sort=${currentSortOrder == 'asc' ? 'desc' : 'asc'})}"
+                >
+                  Class Name
+                </a>
+              </th>
               <th scope="col"></th>
               <th scope="col"></th>
             </tr>

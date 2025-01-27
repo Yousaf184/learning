@@ -3,6 +3,7 @@ package com.ysf.eazy.school.service.jpa;
 import com.ysf.eazy.school.dao.jpa.EazyClassRepository;
 import com.ysf.eazy.school.model.jpa.EazyClass;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,8 +19,12 @@ public class EazyClassService {
         this.eazyClassRepository = eazyClassRepository;
     }
 
-    public List<EazyClass> getAllClasses() {
-        return this.eazyClassRepository.findAll();
+    public List<EazyClass> getAllClasses(String sortOrder) {
+        Sort sorter = sortOrder.equalsIgnoreCase("asc")
+                ? Sort.by("name").ascending()
+                : Sort.by("name").descending();
+
+        return this.eazyClassRepository.findAll(sorter);
     }
 
     public void saveClass(EazyClass eazyClass) {
