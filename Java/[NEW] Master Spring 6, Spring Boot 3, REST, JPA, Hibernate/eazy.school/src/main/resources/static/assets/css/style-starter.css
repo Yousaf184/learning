@@ -21548,7 +21548,7 @@ form button.nav-link {
 }
 
 /* styles for table column headers which include link tags for sorting by column */
-thead th[data-sort] a {
+thead th a {
   position: relative;
   color: white;
 }
