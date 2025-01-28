@@ -54,25 +54,16 @@ public class ContactService {
         Sort sorter = sortOrder.equals("asc")
                 ? Sort.by(sortByField).ascending()
                 : Sort.by(sortByField).descending();
-
         Pageable pageable = PageRequest.of(startPage, PAGE_SIZE, sorter);
 
         return this.contactRepository.findByStatus(status, pageable);
     }
 
     public boolean updateContactMessageStatus(
-            Integer messageId,
-            ContactMessage.MessageStatus newStatus
+        Integer messageId,
+        ContactMessage.MessageStatus newStatus
     ) {
-        Optional<ContactMessage> contactMsgOptional = this.contactRepository.findById(messageId);
-        ContactMessage contactMsg = contactMsgOptional.orElse(null);
-        ContactMessage updatedContactMsg = null;
-
-        if (contactMsg != null) {
-            contactMsg.setStatus(newStatus);
-            updatedContactMsg = this.contactRepository.save(contactMsg);
-        }
-
-        return updatedContactMsg != null;
+        int updatedRowCount = this.contactRepository.updateMessageStatus(ContactMessage.MessageStatus.CLOSED, messageId);
+        return updatedRowCount == 1;
     }
 }
