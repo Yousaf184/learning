@@ -66,4 +66,8 @@ public class ContactService {
         int updatedRowCount = this.contactRepository.updateMessageStatus(ContactMessage.MessageStatus.CLOSED, messageId);
         return updatedRowCount == 1;
     }
+
+    public void deleteMessageById(Integer id) {
+        this.contactRepository.deleteById(id);
+    }
 }

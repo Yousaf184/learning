@@ -19,6 +19,7 @@ public class SecurityConfig {
                 .csrf(csrfConfigurer -> csrfConfigurer
                         .ignoringRequestMatchers("/contact/saveMsg")
                         .ignoringRequestMatchers("/user/register")
+                        .ignoringRequestMatchers("/api/**")
 //                        .ignoringRequestMatchers(PathRequest.toH2Console()) // needed for H2 database
                 )
                 .authorizeHttpRequests(requests -> requests
@@ -35,6 +36,7 @@ public class SecurityConfig {
                         .requestMatchers("/assets/**").permitAll()
                         .requestMatchers("/user/register").permitAll()
                         .requestMatchers("/login").permitAll()
+                        .requestMatchers("/api/**").permitAll()
 //                        .requestMatchers(PathRequest.toH2Console()).permitAll() // needed for H2 database
                         .anyRequest().authenticated()
                 )
