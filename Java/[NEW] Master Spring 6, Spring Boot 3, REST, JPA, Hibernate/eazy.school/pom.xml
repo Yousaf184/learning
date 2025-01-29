@@ -96,6 +96,12 @@
 			<artifactId>spring-aspects</artifactId>
 			<version>6.1.13</version>
 		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+			<version>2.18.2</version>
+		</dependency>
 	</dependencies>
 
 	<build>
