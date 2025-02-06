@@ -42,7 +42,6 @@ public class MyRestClient implements IRestClient {
                 .exchange((request, response) -> {
                     if (response.getStatusCode().is2xxSuccessful()) {
                         S successResponseBody = new ObjectMapper().readValue(response.getBody(), successResponseClassType);
-                        System.out.println(successResponseBody);
                         return ResponseEntity
                                 .status(response.getStatusCode().value())
                                 .body(successResponseBody);
