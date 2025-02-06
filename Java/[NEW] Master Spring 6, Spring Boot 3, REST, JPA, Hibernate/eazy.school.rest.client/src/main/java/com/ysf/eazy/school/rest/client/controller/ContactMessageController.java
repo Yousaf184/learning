@@ -2,7 +2,7 @@ package com.ysf.eazy.school.rest.client.controller;
 
 import com.ysf.eazy.school.rest.client.clients.IRestClient;
 import com.ysf.eazy.school.rest.client.model.ContactMessage;
-import com.ysf.eazy.school.rest.client.model.ErrorResponse;
+import com.ysf.eazy.school.rest.client.model.CustomErrorResponse;
 import com.ysf.eazy.school.rest.client.model.SuccessResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ public class ContactMessageController {
 
     @Autowired
     public ContactMessageController(
-        @Qualifier("myRestClient") IRestClient apiClient
+        @Qualifier("myRestTemplate") IRestClient apiClient
     ) {
         this.apiClient = apiClient;
     }
@@ -68,7 +68,7 @@ public class ContactMessageController {
         log.info("SENDING POST REQUEST TO: {}", requestUrl);
 
         Class<SuccessResponse> successResponseClassType = SuccessResponse.class;
-        Class<ErrorResponse> errorResponseClassType = ErrorResponse.class;
+        Class<CustomErrorResponse> errorResponseClassType = CustomErrorResponse.class;
         return this.apiClient.post(
                 requestUrl,
                 contactMessage,

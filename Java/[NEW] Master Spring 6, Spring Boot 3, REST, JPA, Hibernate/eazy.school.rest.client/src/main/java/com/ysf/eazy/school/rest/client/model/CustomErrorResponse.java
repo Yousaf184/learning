@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @ToString
-public class ErrorResponse {
+public class CustomErrorResponse {
 
     private String status;
     private List<Error> errors;

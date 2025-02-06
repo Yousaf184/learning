@@ -1,16 +1,20 @@
 package com.ysf.eazy.school.rest.client.clients;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 
 @Component
+@Slf4j
 public class MyRestClient implements IRestClient {
 
     @Override
     public <T> ResponseEntity<T> getAll(String requestUrl, Class<T> responseClassType) {
+        log.info("GET request using RestClient");
+
         return RestClient.create()
                 .get()
                 .uri(requestUrl)
@@ -27,6 +31,8 @@ public class MyRestClient implements IRestClient {
         Class<S> successResponseClassType,
         Class<E> errorResponseClassType
     ) {
+        log.info("POST request using RestClient");
+
         return RestClient.create()
                 .post()
                 .uri(requestUrl)
