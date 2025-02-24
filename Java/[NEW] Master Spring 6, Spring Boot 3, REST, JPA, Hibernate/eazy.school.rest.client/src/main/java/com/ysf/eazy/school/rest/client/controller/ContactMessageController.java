@@ -1,5 +1,6 @@
 package com.ysf.eazy.school.rest.client.controller;
 
+import com.ysf.eazy.school.rest.client.clients.ContactFeignClient;
 import com.ysf.eazy.school.rest.client.clients.IRestClient;
 import com.ysf.eazy.school.rest.client.clients.IRestClientAsync;
 import com.ysf.eazy.school.rest.client.model.ContactMessage;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+
 
 @Slf4j
 @RestController
@@ -24,14 +27,17 @@ public class ContactMessageController {
 
     private final IRestClient apiClient;
     private final IRestClientAsync apiClientAsync;
+    private final ContactFeignClient contactFeignClient;
 
     @Autowired
     public ContactMessageController(
         @Qualifier("myRestTemplate") IRestClient apiClient,
-        IRestClientAsync apiClientAsync
+        IRestClientAsync apiClientAsync,
+        ContactFeignClient contactFeignClient
     ) {
         this.apiClient = apiClient;
         this.apiClientAsync = apiClientAsync;
+        this.contactFeignClient = contactFeignClient;
     }
 
     @GetMapping("/messages")
@@ -72,6 +78,17 @@ public class ContactMessageController {
         log.info("SENDING ASYNC GET REQUEST TO: {}", requestUrl);
 
         return this.apiClientAsync.getAllAsync(requestUrl, String.class);
+    }
+
+    @GetMapping("/messages/feign")
+    public ResponseEntity<Map<String, Object>> getMessagesByStatusUsingFeignClient(
+        @RequestParam(name = "status", defaultValue = "OPEN", required = false) String messageStatus,
+        @RequestParam(name = "page", defaultValue = "1", required = false) int page,
+        @RequestParam(name = "sortBy", defaultValue = "name", required = false) String sortBy,
+        @RequestParam(name = "sortDir", defaultValue = "asc", required = false) String sortOrder
+    ) {
+        log.info("SENDING GET REQUEST USING FEIGN CLIENT");
+        return this.contactFeignClient.getMessagesByStatus(messageStatus, page, sortBy, sortOrder);
     }
 
     @PostMapping("/message")
@@ -128,5 +145,14 @@ public class ContactMessageController {
                 customRequestHeaders,
                 successResponseClassType,
                 errorResponseClassType);
+    }
+
+    @PostMapping("/message/feign")
+    public ResponseEntity<Map<String, Object>> saveMessageUsingFeignClient(
+        @RequestHeader(name = "invocationFrom", required = false) String invocationFrom,
+        @RequestBody ContactMessage contactMessage
+    ) {
+        log.info("SENDING POST REQUEST USING FEIGN CLIENT");
+        return this.contactFeignClient.saveMessage(invocationFrom, contactMessage);
     }
 }
