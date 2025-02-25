@@ -37,7 +37,10 @@ public class ContactRestControllerTest {
     private ObjectMapper objectMapper;
 
     @Captor
-    private ArgumentCaptor<ContactMessage> contactMessageArgumentCaptor;
+    private ArgumentCaptor<ContactMessage> contactMsgArgumentCaptor;
+
+    @Captor
+    private ArgumentCaptor<ContactMessage.MessageStatus> contactMsgStatusCaptor;
 
     @Test
     @DisplayName("Get open messages")
@@ -111,13 +114,59 @@ public class ContactRestControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("success"));
 
         Mockito.verify(this.contactService, Mockito.atLeast(1))
-                .saveContactMessage(contactMessageArgumentCaptor.capture());
+                .saveContactMessage(this.contactMsgArgumentCaptor.capture());
 
-        ContactMessage capturedArg = contactMessageArgumentCaptor.getValue();
+        ContactMessage capturedArg = this.contactMsgArgumentCaptor.getValue();
         ContactMessage contactMessage = this.objectMapper.readValue(messageStr, ContactMessage.class);
 
-        Assertions.assertEquals(capturedArg.getName(), contactMessage.getName());
+        Assertions.assertEquals(contactMessage.getName(), capturedArg.getName());
         Assertions.assertNull(capturedArg.getId());
         Assertions.assertNull(capturedArg.getStatus());
+    }
+
+    @Test
+    @DisplayName("Mark messages as closed")
+    @Tag("PATCH")
+    void markMessageAsClosed() throws Exception {
+        String messageStr = """
+            {
+                "id": 5,
+                "name": "Adam",
+                "mobileNum": "2176436587",
+                "email": "zadam@gmail.com",
+                "subject": "Regarding a job",
+                "message": "Wanted to join as teacher",
+                "status": "OPEN"
+            }
+        """;
+
+        ContactMessage contactMsgToUpdate = this.objectMapper.readValue(messageStr, ContactMessage.class);
+
+        Mockito.when(
+            this.contactService.updateContactMessageStatus(
+                    Mockito.eq(contactMsgToUpdate.getId()),
+                    Mockito.eq(ContactMessage.MessageStatus.CLOSED)
+            )
+        ).thenReturn(true);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .patch("/api/contact/message/close/{messageId}", contactMsgToUpdate.getId())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(messageStr);
+
+        this.mockMvc
+                .perform(request)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("success"));
+
+        Mockito.verify(this.contactService, Mockito.atMostOnce())
+                .updateContactMessageStatus(
+                        Mockito.eq(contactMsgToUpdate.getId()),
+                        this.contactMsgStatusCaptor.capture()
+                );
+
+        ContactMessage.MessageStatus capturedArg = this.contactMsgStatusCaptor.getValue();
+        Assertions.assertEquals(ContactMessage.MessageStatus.CLOSED, capturedArg);
     }
 }
