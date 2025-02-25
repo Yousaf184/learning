@@ -62,7 +62,7 @@ public class ContactService {
         Integer messageId,
         ContactMessage.MessageStatus newStatus
     ) {
-        int updatedRowCount = this.contactRepository.updateMessageStatus(ContactMessage.MessageStatus.CLOSED, messageId);
+        int updatedRowCount = this.contactRepository.updateMessageStatus(newStatus, messageId);
         return updatedRowCount == 1;
     }
 
