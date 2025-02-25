@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ysf.eazy.school.model.jpa.ContactMessage;
 import com.ysf.eazy.school.service.jpa.ContactService;
 import org.junit.jupiter.api.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -34,8 +36,11 @@ public class ContactRestControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Captor
+    private ArgumentCaptor<ContactMessage> contactMessageArgumentCaptor;
+
     @Test
-    @DisplayName("Get Open Messages")
+    @DisplayName("Get open messages")
     @Tag("GET")
     void getMessagesByStatus() throws Exception {
         final String STATUS = "Open";
@@ -74,5 +79,45 @@ public class ContactRestControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("success"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.sortField").value("name"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.currentPage").value("1"));
+    }
+
+    @Test
+    @DisplayName("Save new message")
+    @Tag("POST")
+    void saveNewMessage() throws Exception {
+        String messageStr = """
+            {
+                "name": "Adam",
+                "mobileNum": "2176436587",
+                "email": "zadam@gmail.com",
+                "subject": "Regarding a job",
+                "message": "Wanted to join as teacher"
+            }
+        """;
+
+        Mockito.when(
+                this.contactService.saveContactMessage(Mockito.any(ContactMessage.class))
+        ).thenReturn(true);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post("/api/contact/message")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(messageStr);
+
+        this.mockMvc
+                .perform(request)
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("success"));
+
+        Mockito.verify(this.contactService, Mockito.atLeast(1))
+                .saveContactMessage(contactMessageArgumentCaptor.capture());
+
+        ContactMessage capturedArg = contactMessageArgumentCaptor.getValue();
+        ContactMessage contactMessage = this.objectMapper.readValue(messageStr, ContactMessage.class);
+
+        Assertions.assertEquals(capturedArg.getName(), contactMessage.getName());
+        Assertions.assertNull(capturedArg.getId());
+        Assertions.assertNull(capturedArg.getStatus());
     }
 }
