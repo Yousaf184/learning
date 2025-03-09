@@ -16,7 +16,5 @@ public interface ICustomerService {
 
     Optional<CustomerDTO> updateCustomerById(UUID customerId, CustomerDTO customerDTO);
 
-    Optional<CustomerDTO> patchCustomerById(UUID customerId, CustomerDTO customerDTO);
-
     Optional<CustomerDTO> deleteCustomerById(UUID customerId);
 }

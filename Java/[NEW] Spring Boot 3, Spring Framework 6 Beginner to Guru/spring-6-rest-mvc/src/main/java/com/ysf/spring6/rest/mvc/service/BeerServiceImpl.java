@@ -1,141 +1,106 @@
 package com.ysf.spring6.rest.mvc.service;
 
-import com.ysf.spring6.rest.mvc.constants.BeerStyle;
 import com.ysf.spring6.rest.mvc.dto.BeerDTO;
+import com.ysf.spring6.rest.mvc.entity.Beer;
+import com.ysf.spring6.rest.mvc.mapper.BeerMapper;
+import com.ysf.spring6.rest.mvc.repository.BeerRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class BeerServiceImpl implements IBeerService {
 
-    private final Map<UUID, BeerDTO> beerMap;
-
-    public BeerServiceImpl() {
-        this.beerMap = new HashMap<>();
-
-        BeerDTO beerDTO1 = BeerDTO.builder()
-                .id(UUID.randomUUID())
-                .version(1)
-                .beerName("Galaxy Cat")
-                .beerStyle(BeerStyle.PALE_ALE)
-                .upc("12356")
-                .price(new BigDecimal("12.99"))
-                .quantityOnHand(122)
-                .createdDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
-                .build();
-
-        BeerDTO beerDTO2 = BeerDTO.builder()
-                .id(UUID.randomUUID())
-                .version(1)
-                .beerName("Crank")
-                .beerStyle(BeerStyle.PALE_ALE)
-                .upc("12356222")
-                .price(new BigDecimal("11.99"))
-                .quantityOnHand(392)
-                .createdDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
-                .build();
-
-        BeerDTO beerDTO3 = BeerDTO.builder()
-                .id(UUID.randomUUID())
-                .version(1)
-                .beerName("Sunshine City")
-                .beerStyle(BeerStyle.IPA)
-                .upc("12356")
-                .price(new BigDecimal("13.99"))
-                .quantityOnHand(144)
-                .createdDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
-                .build();
-
-        beerMap.put(beerDTO1.getId(), beerDTO1);
-        beerMap.put(beerDTO2.getId(), beerDTO2);
-        beerMap.put(beerDTO3.getId(), beerDTO3);
-    }
+    private final BeerRepository beerRepository;
+    private final BeerMapper beerMapper;
 
     @Override
     public List<BeerDTO> listBeers(){
-        return new ArrayList<>(beerMap.values());
+        return this.beerRepository.findAll()
+                .stream()
+                .map(this.beerMapper::beerToBeerDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Optional<BeerDTO> getBeerById(UUID id) {
-        return Optional.ofNullable(beerMap.get(id));
+        Optional<Beer> beerOptional = this.beerRepository.findById(id);
+        Beer beer = beerOptional.orElse(null);
+
+        BeerDTO beerDTO = this.beerMapper.beerToBeerDTO(beer);
+
+        return Optional.ofNullable(beerDTO);
     }
 
     @Override
     public BeerDTO saveNewBeer(BeerDTO beerDTO) {
-        BeerDTO savedBeerDTO = BeerDTO.builder()
-                .id(UUID.randomUUID())
-                .version(1)
-                .createdDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
-                .beerName(beerDTO.getBeerName())
-                .beerStyle(beerDTO.getBeerStyle())
-                .quantityOnHand(beerDTO.getQuantityOnHand())
-                .upc(beerDTO.getUpc())
-                .price(beerDTO.getPrice())
-                .build();
+        if (beerDTO.getId() != null) {
+            beerDTO.setId(null);
+        }
 
-        beerMap.put(savedBeerDTO.getId(), savedBeerDTO);
+        if (beerDTO.getVersion() != null) {
+            beerDTO.setVersion(null);
+        }
 
-        return savedBeerDTO;
+        Beer beerToSave = this.beerMapper.beerDTOToBeer(beerDTO);
+        Beer savedBeer = this.beerRepository.save(beerToSave);
+
+        return this.beerMapper.beerToBeerDTO(savedBeer);
     }
 
     @Override
     public Optional<BeerDTO> updateBeerById(UUID beerId, BeerDTO beerDTO) {
-        BeerDTO existing = beerMap.get(beerId);
+        Optional<Beer> beerOptional = this.beerRepository.findById(beerId);
 
-        if (existing == null) {
+        if (beerOptional.isEmpty() || !beerId.equals(beerDTO.getId())) {
             return Optional.empty();
         }
 
-        existing.setBeerName(beerDTO.getBeerName());
-        existing.setPrice(beerDTO.getPrice());
-        existing.setUpc(beerDTO.getUpc());
-        existing.setQuantityOnHand(beerDTO.getQuantityOnHand());
-
-        return Optional.of(existing);
-    }
-
-    @Override
-    public Optional<BeerDTO> patchBeerById(UUID beerId, BeerDTO beerDTO) {
-        BeerDTO existing = beerMap.get(beerId);
-
-        if (existing == null) {
-            return Optional.empty();
-        }
+        Beer beerToUpdate = beerOptional.orElse(null);
 
         if (StringUtils.hasText(beerDTO.getBeerName())){
-            existing.setBeerName(beerDTO.getBeerName());
+            beerToUpdate.setBeerName(beerDTO.getBeerName());
         }
 
         if (beerDTO.getBeerStyle() != null) {
-            existing.setBeerStyle(beerDTO.getBeerStyle());
+            beerToUpdate.setBeerStyle(beerDTO.getBeerStyle());
         }
 
         if (beerDTO.getPrice() != null) {
-            existing.setPrice(beerDTO.getPrice());
+            beerToUpdate.setPrice(beerDTO.getPrice());
         }
 
         if (beerDTO.getQuantityOnHand() != null){
-            existing.setQuantityOnHand(beerDTO.getQuantityOnHand());
+            beerToUpdate.setQuantityOnHand(beerDTO.getQuantityOnHand());
         }
 
         if (StringUtils.hasText(beerDTO.getUpc())) {
-            existing.setUpc(beerDTO.getUpc());
+            beerToUpdate.setUpc(beerDTO.getUpc());
         }
 
-        return Optional.of(existing);
+        Beer updatedBeer = this.beerRepository.save(beerToUpdate);
+
+        BeerDTO updatedBeerDTO = this.beerMapper.beerToBeerDTO(updatedBeer);
+        return Optional.of(updatedBeerDTO);
     }
 
     @Override
     public Optional<BeerDTO> deleteBeerById(UUID beerId) {
-        return Optional.ofNullable(beerMap.remove(beerId));
+        Optional<Beer> beerOptional = this.beerRepository.findById(beerId);
+
+        if (beerOptional.isEmpty()) {
+            return Optional.empty();
+        }
+
+        this.beerRepository.deleteById(beerId);
+
+        Beer deletedBeer = beerOptional.orElse(null);
+        BeerDTO deletedBeerDTO = this.beerMapper.beerToBeerDTO(deletedBeer);
+
+        return Optional.ofNullable(deletedBeerDTO);
     }
 }

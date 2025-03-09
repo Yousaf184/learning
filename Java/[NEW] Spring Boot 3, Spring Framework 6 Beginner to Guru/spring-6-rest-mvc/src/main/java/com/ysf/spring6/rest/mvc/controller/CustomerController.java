@@ -54,14 +54,6 @@ public class CustomerController {
         return ResponseEntity.ok(updatedCustomerDTO);
     }
 
-    @PatchMapping("/{customerId}")
-    public ResponseEntity<CustomerDTO> patchCustomerById(@PathVariable("customerId") UUID customerId, @RequestBody CustomerDTO customerDTO) {
-        Optional<CustomerDTO> customerOptional = this.customerService.patchCustomerById(customerId, customerDTO);
-        CustomerDTO patchedCustomerDTO = customerOptional.orElseThrow(CustomerController.customerNotFoundExSupplier);
-
-        return ResponseEntity.ok(patchedCustomerDTO);
-    }
-
     @DeleteMapping("/{customerId}")
     public ResponseEntity<CustomerDTO> deleteCustomerById(@PathVariable("customerId") UUID customerId) {
         Optional<CustomerDTO> customerOptional = this.customerService.deleteCustomerById(customerId);

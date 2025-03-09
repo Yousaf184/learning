@@ -76,19 +76,6 @@ public class CustomerServiceImpl implements ICustomerService {
             return Optional.empty();
         }
 
-        existing.setName(customerDTO.getName());
-
-        return Optional.of(existing);
-    }
-
-    @Override
-    public Optional<CustomerDTO> patchCustomerById(UUID customerId, CustomerDTO customerDTO) {
-        CustomerDTO existing = this.customerMap.get(customerId);
-
-        if (existing == null) {
-            return Optional.empty();
-        }
-
         if (StringUtils.hasText(customerDTO.getName())) {
             existing.setName(customerDTO.getName());
         }

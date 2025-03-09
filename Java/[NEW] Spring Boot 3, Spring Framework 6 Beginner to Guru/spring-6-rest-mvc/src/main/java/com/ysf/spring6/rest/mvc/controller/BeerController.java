@@ -55,14 +55,6 @@ public class BeerController {
         return ResponseEntity.ok(updatedBeerDTO);
     }
 
-    @PatchMapping("/{beerId}")
-    public ResponseEntity<BeerDTO> patchBeerById(@PathVariable("beerId") UUID beerId, @RequestBody BeerDTO beerDTO) {
-        Optional<BeerDTO> beerOptional = this.beerService.patchBeerById(beerId, beerDTO);
-        BeerDTO patchedBeerDTO = beerOptional.orElseThrow(BeerController.beerNotFoundExSupplier);
-
-        return ResponseEntity.ok(patchedBeerDTO);
-    }
-
     @DeleteMapping("/{beerId}")
     public ResponseEntity<BeerDTO> deleteBeerById(@PathVariable("beerId") UUID beerId) {
         Optional<BeerDTO> beerOptional = this.beerService.deleteBeerById(beerId);

@@ -1,8 +1,8 @@
 package com.ysf.spring6.rest.mvc.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ysf.spring6.rest.mvc.constants.BeerStyle;
 import com.ysf.spring6.rest.mvc.dto.BeerDTO;
-import com.ysf.spring6.rest.mvc.service.BeerServiceImpl;
 import com.ysf.spring6.rest.mvc.service.IBeerService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +21,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -42,20 +45,60 @@ class BeerControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private BeerServiceImpl beerServiceImpl;
+    private List<BeerDTO> testBeerList;
 
     private static final String BEER_CONTROLLER_BASE_URL = "/api/v1/beer/";
 
     @BeforeEach
     void setUp() {
-        this.beerServiceImpl = new BeerServiceImpl();
+        this.testBeerList = new ArrayList<>();
+
+        BeerDTO beerDTO1 = BeerDTO.builder()
+                .id(UUID.randomUUID())
+                .version(1)
+                .beerName("Galaxy Cat")
+                .beerStyle(BeerStyle.PALE_ALE)
+                .upc("12356")
+                .price(new BigDecimal("12.99"))
+                .quantityOnHand(122)
+                .createdDate(LocalDateTime.now())
+                .updateDate(LocalDateTime.now())
+                .build();
+
+        BeerDTO beerDTO2 = BeerDTO.builder()
+                .id(UUID.randomUUID())
+                .version(1)
+                .beerName("Crank")
+                .beerStyle(BeerStyle.PALE_ALE)
+                .upc("12356222")
+                .price(new BigDecimal("11.99"))
+                .quantityOnHand(392)
+                .createdDate(LocalDateTime.now())
+                .updateDate(LocalDateTime.now())
+                .build();
+
+        BeerDTO beerDTO3 = BeerDTO.builder()
+                .id(UUID.randomUUID())
+                .version(1)
+                .beerName("Sunshine City")
+                .beerStyle(BeerStyle.IPA)
+                .upc("12356")
+                .price(new BigDecimal("13.99"))
+                .quantityOnHand(144)
+                .createdDate(LocalDateTime.now())
+                .updateDate(LocalDateTime.now())
+                .build();
+
+        this.testBeerList.add(beerDTO1);
+        this.testBeerList.add(beerDTO2);
+        this.testBeerList.add(beerDTO3);
     }
 
     @Test
     @DisplayName("Get all beers")
     void listBeers() throws Exception {
         Mockito.when(this.beerServiceMock.listBeers())
-                .thenReturn(this.beerServiceImpl.listBeers());
+                .thenReturn(this.testBeerList);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .get(BEER_CONTROLLER_BASE_URL)
@@ -73,7 +116,7 @@ class BeerControllerTest {
     @Test
     @DisplayName("Get beer by ID")
     void getBeerById() throws Exception {
-        BeerDTO beerDTO = this.beerServiceImpl.listBeers().getFirst();
+        BeerDTO beerDTO = this.testBeerList.getFirst();
 
         Mockito.when(this.beerServiceMock.getBeerById(beerDTO.getId()))
                 .thenReturn(Optional.of(beerDTO));
@@ -100,7 +143,7 @@ class BeerControllerTest {
     @Test
     @DisplayName("Save new beer")
     void saveNewBeer() throws Exception {
-        BeerDTO existingBeerDTO = this.beerServiceImpl.listBeers().getFirst();
+        BeerDTO existingBeerDTO = this.testBeerList.getFirst();
         BeerDTO beerDTOToBeCreated = BeerDTO.builder()
                 .beerName(existingBeerDTO.getBeerName())
                 .beerStyle(existingBeerDTO.getBeerStyle())
@@ -142,7 +185,7 @@ class BeerControllerTest {
     @Test
     @DisplayName("Update existing beer")
     void updateBeer() throws Exception {
-        BeerDTO existingBeerDTO = this.beerServiceImpl.listBeers().getFirst();
+        BeerDTO existingBeerDTO = this.testBeerList.getFirst();
         BeerDTO updatedBeerDTOData = BeerDTO.builder()
                 .beerName(existingBeerDTO.getBeerName() + " - UPDATED")
                 .quantityOnHand(existingBeerDTO.getQuantityOnHand() + 5)
@@ -182,7 +225,7 @@ class BeerControllerTest {
     @Test
     @DisplayName("Delete beer by id")
     void deleteBeerById() throws Exception {
-        BeerDTO beerDTOToDelete = this.beerServiceImpl.listBeers().getFirst();
+        BeerDTO beerDTOToDelete = this.testBeerList.getFirst();
 
         Mockito.when(this.beerServiceMock.deleteBeerById(Mockito.any(UUID.class)))
                 .thenReturn(Optional.of(beerDTOToDelete));
