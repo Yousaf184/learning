@@ -1,7 +1,7 @@
 package com.ysf.spring6.rest.mvc.controller;
 
 import com.ysf.spring6.rest.mvc.exceptions.NotFoundException;
-import com.ysf.spring6.rest.mvc.model.Beer;
+import com.ysf.spring6.rest.mvc.dto.BeerDTO;
 import com.ysf.spring6.rest.mvc.service.IBeerService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,47 +27,47 @@ public class BeerController {
     };
 
     @GetMapping("/")
-    public ResponseEntity<List<Beer>> listBeers() {
+    public ResponseEntity<List<BeerDTO>> listBeers() {
         return ResponseEntity.ok(this.beerService.listBeers());
     }
 
     @GetMapping("/{beerId}")
-    public ResponseEntity<Beer> getBeerById(@PathVariable("beerId") UUID beerId) {
-        Optional<Beer> beerOptional = this.beerService.getBeerById(beerId);
-        Beer beer = beerOptional.orElseThrow(BeerController.beerNotFoundExSupplier);
+    public ResponseEntity<BeerDTO> getBeerById(@PathVariable("beerId") UUID beerId) {
+        Optional<BeerDTO> beerOptional = this.beerService.getBeerById(beerId);
+        BeerDTO beerDTO = beerOptional.orElseThrow(BeerController.beerNotFoundExSupplier);
 
-        return ResponseEntity.ok(beer);
+        return ResponseEntity.ok(beerDTO);
     }
 
     @PostMapping("/")
-    public ResponseEntity<Beer> saveNewBeer(@RequestBody Beer beer) {
-        Beer createdBeer = this.beerService.saveNewBeer(beer);
+    public ResponseEntity<BeerDTO> saveNewBeer(@RequestBody BeerDTO beerDTO) {
+        BeerDTO createdBeerDTO = this.beerService.saveNewBeer(beerDTO);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(createdBeer);
+                .body(createdBeerDTO);
     }
 
     @PutMapping("/{beerId}")
-    public ResponseEntity<Beer> updateBeerById(@PathVariable("beerId") UUID beerId, @RequestBody Beer beer) {
-        Optional<Beer> beerOptional = this.beerService.updateBeerById(beerId, beer);
-        Beer updatedBeer = beerOptional.orElseThrow(BeerController.beerNotFoundExSupplier);
+    public ResponseEntity<BeerDTO> updateBeerById(@PathVariable("beerId") UUID beerId, @RequestBody BeerDTO beerDTO) {
+        Optional<BeerDTO> beerOptional = this.beerService.updateBeerById(beerId, beerDTO);
+        BeerDTO updatedBeerDTO = beerOptional.orElseThrow(BeerController.beerNotFoundExSupplier);
 
-        return ResponseEntity.ok(updatedBeer);
+        return ResponseEntity.ok(updatedBeerDTO);
     }
 
     @PatchMapping("/{beerId}")
-    public ResponseEntity<Beer> patchBeerById(@PathVariable("beerId") UUID beerId, @RequestBody Beer beer) {
-        Optional<Beer> beerOptional = this.beerService.patchBeerById(beerId, beer);
-        Beer patchedBeer = beerOptional.orElseThrow(BeerController.beerNotFoundExSupplier);
+    public ResponseEntity<BeerDTO> patchBeerById(@PathVariable("beerId") UUID beerId, @RequestBody BeerDTO beerDTO) {
+        Optional<BeerDTO> beerOptional = this.beerService.patchBeerById(beerId, beerDTO);
+        BeerDTO patchedBeerDTO = beerOptional.orElseThrow(BeerController.beerNotFoundExSupplier);
 
-        return ResponseEntity.ok(patchedBeer);
+        return ResponseEntity.ok(patchedBeerDTO);
     }
 
     @DeleteMapping("/{beerId}")
-    public ResponseEntity<Beer> deleteBeerById(@PathVariable("beerId") UUID beerId) {
-        Optional<Beer> beerOptional = this.beerService.deleteBeerById(beerId);
-        Beer removedBeer = beerOptional.orElseThrow(BeerController.beerNotFoundExSupplier);
+    public ResponseEntity<BeerDTO> deleteBeerById(@PathVariable("beerId") UUID beerId) {
+        Optional<BeerDTO> beerOptional = this.beerService.deleteBeerById(beerId);
+        BeerDTO removedBeerDTO = beerOptional.orElseThrow(BeerController.beerNotFoundExSupplier);
 
-        return ResponseEntity.ok(removedBeer);
+        return ResponseEntity.ok(removedBeerDTO);
     }
 }

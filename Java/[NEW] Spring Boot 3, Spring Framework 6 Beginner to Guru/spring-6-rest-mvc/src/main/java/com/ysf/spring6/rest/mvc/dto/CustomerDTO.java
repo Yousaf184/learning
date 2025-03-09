@@ -1,4 +1,4 @@
-package com.ysf.spring6.rest.mvc.model;
+package com.ysf.spring6.rest.mvc.dto;
 
 import lombok.Builder;
 import lombok.Data;
@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class Customer {
+public class CustomerDTO {
     private UUID id;
     private Integer version;
     private String name;

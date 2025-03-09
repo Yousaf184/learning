@@ -1,7 +1,7 @@
 package com.ysf.spring6.rest.mvc.controller;
 
 import com.ysf.spring6.rest.mvc.exceptions.NotFoundException;
-import com.ysf.spring6.rest.mvc.model.Customer;
+import com.ysf.spring6.rest.mvc.dto.CustomerDTO;
 import com.ysf.spring6.rest.mvc.service.ICustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,47 +26,47 @@ public class CustomerController {
     };
 
     @GetMapping("/")
-    public ResponseEntity<List<Customer>> listAllCustomers() {
+    public ResponseEntity<List<CustomerDTO>> listAllCustomers() {
         return ResponseEntity.ok(this.customerService.getAllCustomers());
     }
 
     @GetMapping("/{customerId}")
-    public ResponseEntity<Customer> getCustomerById(@PathVariable("customerId") UUID customerId) {
-        Optional<Customer> customerOptional = this.customerService.getCustomerById(customerId);
-        Customer customer = customerOptional.orElseThrow(CustomerController.customerNotFoundExSupplier);
+    public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable("customerId") UUID customerId) {
+        Optional<CustomerDTO> customerOptional = this.customerService.getCustomerById(customerId);
+        CustomerDTO customerDTO = customerOptional.orElseThrow(CustomerController.customerNotFoundExSupplier);
 
-        return ResponseEntity.ok(customer);
+        return ResponseEntity.ok(customerDTO);
     }
 
     @PostMapping("/")
-    public ResponseEntity<Customer> saveNewCustomer(@RequestBody Customer customer) {
-        Customer createdCustomer = this.customerService.saveNewCustomer(customer);
+    public ResponseEntity<CustomerDTO> saveNewCustomer(@RequestBody CustomerDTO customerDTO) {
+        CustomerDTO createdCustomerDTO = this.customerService.saveNewCustomer(customerDTO);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(createdCustomer);
+                .body(createdCustomerDTO);
     }
 
     @PutMapping("/{customerId}")
-    public ResponseEntity<Customer> updateCustomerById(@PathVariable("customerId") UUID customerId, @RequestBody Customer customer) {
-        Optional<Customer> customerOptional = this.customerService.updateCustomerById(customerId, customer);
-        Customer updatedCustomer = customerOptional.orElseThrow(CustomerController.customerNotFoundExSupplier);
+    public ResponseEntity<CustomerDTO> updateCustomerById(@PathVariable("customerId") UUID customerId, @RequestBody CustomerDTO customerDTO) {
+        Optional<CustomerDTO> customerOptional = this.customerService.updateCustomerById(customerId, customerDTO);
+        CustomerDTO updatedCustomerDTO = customerOptional.orElseThrow(CustomerController.customerNotFoundExSupplier);
 
-        return ResponseEntity.ok(updatedCustomer);
+        return ResponseEntity.ok(updatedCustomerDTO);
     }
 
     @PatchMapping("/{customerId}")
-    public ResponseEntity<Customer> patchCustomerById(@PathVariable("customerId") UUID customerId, @RequestBody Customer customer) {
-        Optional<Customer> customerOptional = this.customerService.patchCustomerById(customerId, customer);
-        Customer patchedCustomer = customerOptional.orElseThrow(CustomerController.customerNotFoundExSupplier);
+    public ResponseEntity<CustomerDTO> patchCustomerById(@PathVariable("customerId") UUID customerId, @RequestBody CustomerDTO customerDTO) {
+        Optional<CustomerDTO> customerOptional = this.customerService.patchCustomerById(customerId, customerDTO);
+        CustomerDTO patchedCustomerDTO = customerOptional.orElseThrow(CustomerController.customerNotFoundExSupplier);
 
-        return ResponseEntity.ok(patchedCustomer);
+        return ResponseEntity.ok(patchedCustomerDTO);
     }
 
     @DeleteMapping("/{customerId}")
-    public ResponseEntity<Customer> deleteCustomerById(@PathVariable("customerId") UUID customerId) {
-        Optional<Customer> customerOptional = this.customerService.deleteCustomerById(customerId);
-        Customer removedCustomer = customerOptional.orElseThrow(CustomerController.customerNotFoundExSupplier);
+    public ResponseEntity<CustomerDTO> deleteCustomerById(@PathVariable("customerId") UUID customerId) {
+        Optional<CustomerDTO> customerOptional = this.customerService.deleteCustomerById(customerId);
+        CustomerDTO removedCustomerDTO = customerOptional.orElseThrow(CustomerController.customerNotFoundExSupplier);
 
-        return ResponseEntity.ok(removedCustomer);
+        return ResponseEntity.ok(removedCustomerDTO);
     }
 }

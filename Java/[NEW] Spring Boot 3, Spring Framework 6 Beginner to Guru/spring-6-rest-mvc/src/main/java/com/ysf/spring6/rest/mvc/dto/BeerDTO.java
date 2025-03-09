@@ -1,4 +1,4 @@
-package com.ysf.spring6.rest.mvc.model;
+package com.ysf.spring6.rest.mvc.dto;
 
 import com.ysf.spring6.rest.mvc.constants.BeerStyle;
 import lombok.Builder;
@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Data
 @Builder
-public class Beer {
+public class BeerDTO {
     private UUID id;
     private Integer version;
     private String beerName;

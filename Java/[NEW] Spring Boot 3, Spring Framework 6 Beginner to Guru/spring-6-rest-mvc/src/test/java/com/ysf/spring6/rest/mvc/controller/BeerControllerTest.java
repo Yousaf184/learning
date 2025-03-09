@@ -1,7 +1,7 @@
 package com.ysf.spring6.rest.mvc.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ysf.spring6.rest.mvc.model.Beer;
+import com.ysf.spring6.rest.mvc.dto.BeerDTO;
 import com.ysf.spring6.rest.mvc.service.BeerServiceImpl;
 import com.ysf.spring6.rest.mvc.service.IBeerService;
 import org.junit.jupiter.api.Assertions;
@@ -34,7 +34,7 @@ class BeerControllerTest {
     @Captor
     private ArgumentCaptor<UUID> beerIdCaptor;
     @Captor
-    private ArgumentCaptor<Beer> beerCaptor;
+    private ArgumentCaptor<BeerDTO> beerCaptor;
 
     @MockitoBean
     private IBeerService beerServiceMock;
@@ -73,13 +73,13 @@ class BeerControllerTest {
     @Test
     @DisplayName("Get beer by ID")
     void getBeerById() throws Exception {
-        Beer beer = this.beerServiceImpl.listBeers().getFirst();
+        BeerDTO beerDTO = this.beerServiceImpl.listBeers().getFirst();
 
-        Mockito.when(this.beerServiceMock.getBeerById(beer.getId()))
-                .thenReturn(Optional.of(beer));
+        Mockito.when(this.beerServiceMock.getBeerById(beerDTO.getId()))
+                .thenReturn(Optional.of(beerDTO));
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
-                .get(BEER_CONTROLLER_BASE_URL + beer.getId().toString())
+                .get(BEER_CONTROLLER_BASE_URL + beerDTO.getId().toString())
                 .accept(MediaType.APPLICATION_JSON);
 
         this.mockMvc
@@ -87,36 +87,36 @@ class BeerControllerTest {
                 .andExpectAll(
                         MockMvcResultMatchers.status().isOk(),
                         MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON),
-                        MockMvcResultMatchers.jsonPath("$.id").value(beer.getId().toString())
+                        MockMvcResultMatchers.jsonPath("$.id").value(beerDTO.getId().toString())
                 );
 
         Mockito.verify(this.beerServiceMock, Mockito.atMostOnce())
                 .getBeerById(this.beerIdCaptor.capture());
 
         UUID capturedBeerId = this.beerIdCaptor.getValue();
-        Assertions.assertEquals(beer.getId(), capturedBeerId);
+        Assertions.assertEquals(beerDTO.getId(), capturedBeerId);
     }
 
     @Test
     @DisplayName("Save new beer")
     void saveNewBeer() throws Exception {
-        Beer existingBeer = this.beerServiceImpl.listBeers().getFirst();
-        Beer beerToBeCreated = Beer.builder()
-                .beerName(existingBeer.getBeerName())
-                .beerStyle(existingBeer.getBeerStyle())
-                .upc(existingBeer.getUpc())
-                .quantityOnHand(existingBeer.getQuantityOnHand())
-                .price(existingBeer.getPrice())
+        BeerDTO existingBeerDTO = this.beerServiceImpl.listBeers().getFirst();
+        BeerDTO beerDTOToBeCreated = BeerDTO.builder()
+                .beerName(existingBeerDTO.getBeerName())
+                .beerStyle(existingBeerDTO.getBeerStyle())
+                .upc(existingBeerDTO.getUpc())
+                .quantityOnHand(existingBeerDTO.getQuantityOnHand())
+                .price(existingBeerDTO.getPrice())
                 .build();
 
-        Mockito.when(this.beerServiceMock.saveNewBeer(Mockito.any(Beer.class)))
-                .thenReturn(existingBeer);
+        Mockito.when(this.beerServiceMock.saveNewBeer(Mockito.any(BeerDTO.class)))
+                .thenReturn(existingBeerDTO);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .post(BEER_CONTROLLER_BASE_URL)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(this.objectMapper.writeValueAsString(beerToBeCreated));
+                .content(this.objectMapper.writeValueAsString(beerDTOToBeCreated));
 
         this.mockMvc
                 .perform(request)
@@ -132,63 +132,63 @@ class BeerControllerTest {
         Mockito.verify(this.beerServiceMock, Mockito.atMostOnce())
                 .saveNewBeer(this.beerCaptor.capture());
 
-        Beer capturedBeer = this.beerCaptor.getValue();
-        Assertions.assertNull(capturedBeer.getId());
-        Assertions.assertNull(capturedBeer.getVersion());
-        Assertions.assertNull(capturedBeer.getCreatedDate());
-        Assertions.assertNull(capturedBeer.getUpdateDate());
+        BeerDTO capturedBeerDTO = this.beerCaptor.getValue();
+        Assertions.assertNull(capturedBeerDTO.getId());
+        Assertions.assertNull(capturedBeerDTO.getVersion());
+        Assertions.assertNull(capturedBeerDTO.getCreatedDate());
+        Assertions.assertNull(capturedBeerDTO.getUpdateDate());
     }
 
     @Test
     @DisplayName("Update existing beer")
     void updateBeer() throws Exception {
-        Beer existingBeer = this.beerServiceImpl.listBeers().getFirst();
-        Beer updatedBeerData = Beer.builder()
-                .beerName(existingBeer.getBeerName() + " - UPDATED")
-                .quantityOnHand(existingBeer.getQuantityOnHand() + 5)
-                .price(existingBeer.getPrice().add(BigDecimal.valueOf(50)))
+        BeerDTO existingBeerDTO = this.beerServiceImpl.listBeers().getFirst();
+        BeerDTO updatedBeerDTOData = BeerDTO.builder()
+                .beerName(existingBeerDTO.getBeerName() + " - UPDATED")
+                .quantityOnHand(existingBeerDTO.getQuantityOnHand() + 5)
+                .price(existingBeerDTO.getPrice().add(BigDecimal.valueOf(50)))
                 .build();
 
         Mockito.when(
                 this.beerServiceMock.updateBeerById(
                         Mockito.any(UUID.class),
-                        Mockito.any(Beer.class)
+                        Mockito.any(BeerDTO.class)
                 )
-        ).thenReturn(Optional.of(updatedBeerData));
+        ).thenReturn(Optional.of(updatedBeerDTOData));
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
-                .put(BEER_CONTROLLER_BASE_URL + existingBeer.getId())
+                .put(BEER_CONTROLLER_BASE_URL + existingBeerDTO.getId())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(this.objectMapper.writeValueAsString(updatedBeerData));
+                .content(this.objectMapper.writeValueAsString(updatedBeerDTOData));
 
         this.mockMvc
                 .perform(request)
                 .andExpectAll(
                         MockMvcResultMatchers.status().isOk(),
                         MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON),
-                        MockMvcResultMatchers.jsonPath("$.beerName").value(updatedBeerData.getBeerName()),
-                        MockMvcResultMatchers.jsonPath("$.quantityOnHand").value(updatedBeerData.getQuantityOnHand()),
-                        MockMvcResultMatchers.jsonPath("$.price").value(updatedBeerData.getPrice())
+                        MockMvcResultMatchers.jsonPath("$.beerName").value(updatedBeerDTOData.getBeerName()),
+                        MockMvcResultMatchers.jsonPath("$.quantityOnHand").value(updatedBeerDTOData.getQuantityOnHand()),
+                        MockMvcResultMatchers.jsonPath("$.price").value(updatedBeerDTOData.getPrice())
                 );
 
         Mockito.verify(this.beerServiceMock, Mockito.atMostOnce())
-                .updateBeerById(this.beerIdCaptor.capture(), Mockito.any(Beer.class));
+                .updateBeerById(this.beerIdCaptor.capture(), Mockito.any(BeerDTO.class));
 
         UUID capturedBeerId = this.beerIdCaptor.getValue();
-        Assertions.assertEquals(existingBeer.getId(), capturedBeerId);
+        Assertions.assertEquals(existingBeerDTO.getId(), capturedBeerId);
     }
 
     @Test
     @DisplayName("Delete beer by id")
     void deleteBeerById() throws Exception {
-        Beer beerToDelete = this.beerServiceImpl.listBeers().getFirst();
+        BeerDTO beerDTOToDelete = this.beerServiceImpl.listBeers().getFirst();
 
         Mockito.when(this.beerServiceMock.deleteBeerById(Mockito.any(UUID.class)))
-                .thenReturn(Optional.of(beerToDelete));
+                .thenReturn(Optional.of(beerDTOToDelete));
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
-                .delete(BEER_CONTROLLER_BASE_URL + beerToDelete.getId())
+                .delete(BEER_CONTROLLER_BASE_URL + beerDTOToDelete.getId())
                 .accept(MediaType.APPLICATION_JSON);
 
         this.mockMvc
@@ -196,14 +196,14 @@ class BeerControllerTest {
                 .andExpectAll(
                         MockMvcResultMatchers.status().isOk(),
                         MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON),
-                        MockMvcResultMatchers.jsonPath("$.id").value(beerToDelete.getId().toString())
+                        MockMvcResultMatchers.jsonPath("$.id").value(beerDTOToDelete.getId().toString())
                 );
 
         Mockito.verify(this.beerServiceMock, Mockito.atMostOnce())
                 .deleteBeerById(this.beerIdCaptor.capture());
 
         UUID capturedBeerId = this.beerIdCaptor.getValue();
-        Assertions.assertEquals(beerToDelete.getId(), capturedBeerId);
+        Assertions.assertEquals(beerDTOToDelete.getId(), capturedBeerId);
     }
 
     @Test
