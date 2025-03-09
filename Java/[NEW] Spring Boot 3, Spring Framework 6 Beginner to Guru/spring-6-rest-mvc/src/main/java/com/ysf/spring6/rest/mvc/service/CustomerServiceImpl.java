@@ -1,90 +1,91 @@
 package com.ysf.spring6.rest.mvc.service;
 
 import com.ysf.spring6.rest.mvc.dto.CustomerDTO;
+import com.ysf.spring6.rest.mvc.entity.Customer;
+import com.ysf.spring6.rest.mvc.mapper.CustomerMapper;
+import com.ysf.spring6.rest.mvc.repository.CustomerRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CustomerServiceImpl implements ICustomerService {
 
-    private final Map<UUID, CustomerDTO> customerMap;
+    private final CustomerRepository customerRepository;
+    private final CustomerMapper customerMapper;
 
-    public CustomerServiceImpl() {
-        CustomerDTO customerDTO1 = CustomerDTO.builder()
-                .id(UUID.randomUUID())
-                .name("Customer 1")
-                .version(1)
-                .createdDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
-                .build();
-
-        CustomerDTO customerDTO2 = CustomerDTO.builder()
-                .id(UUID.randomUUID())
-                .name("Customer 2")
-                .version(1)
-                .createdDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
-                .build();
-
-        CustomerDTO customerDTO3 = CustomerDTO.builder()
-                .id(UUID.randomUUID())
-                .name("Customer 3")
-                .version(1)
-                .createdDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
-                .build();
-
-        this.customerMap = new HashMap<>();
-        this.customerMap.put(customerDTO1.getId(), customerDTO1);
-        this.customerMap.put(customerDTO2.getId(), customerDTO2);
-        this.customerMap.put(customerDTO3.getId(), customerDTO3);
-    }
 
     @Override
     public List<CustomerDTO> getAllCustomers() {
-        return new ArrayList<>(this.customerMap.values());
+        return this.customerRepository.findAll()
+                .stream()
+                .map(this.customerMapper::customerToCustomerDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Optional<CustomerDTO> getCustomerById(UUID uuid) {
-        return Optional.ofNullable(this.customerMap.get(uuid));
+    public Optional<CustomerDTO> getCustomerById(UUID customerId) {
+        Optional<Customer> customerOptional = this.customerRepository.findById(customerId);
+        Customer customer = customerOptional.orElse(null);
+
+        CustomerDTO customerDTO = this.customerMapper.customerToCustomerDTO(customer);
+
+        return Optional.ofNullable(customerDTO);
     }
 
     @Override
     public CustomerDTO saveNewCustomer(CustomerDTO customerDTO) {
-        CustomerDTO savedCustomerDTO = CustomerDTO.builder()
-                .id(UUID.randomUUID())
-                .version(1)
-                .updateDate(LocalDateTime.now())
-                .createdDate(LocalDateTime.now())
-                .name(customerDTO.getName())
-                .build();
+        if (customerDTO.getId() != null) {
+            customerDTO.setId(null);
+        }
 
-        this.customerMap.put(savedCustomerDTO.getId(), savedCustomerDTO);
+        if (customerDTO.getVersion() != null) {
+            customerDTO.setVersion(null);
+        }
 
-        return savedCustomerDTO;
+        Customer customerToSave = this.customerMapper.customerDTOToCustomer(customerDTO);
+        Customer savedCustomer = this.customerRepository.save(customerToSave);
+
+        return this.customerMapper.customerToCustomerDTO(savedCustomer);
     }
 
     @Override
     public Optional<CustomerDTO> updateCustomerById(UUID customerId, CustomerDTO customerDTO) {
-        CustomerDTO existing = this.customerMap.get(customerId);
+        Optional<Customer> customerOptional = this.customerRepository.findById(customerId);
 
-        if (existing == null) {
+        if (customerOptional.isEmpty() || !customerId.equals(customerDTO.getId())) {
             return Optional.empty();
         }
 
+        Customer customerToUpdate = customerOptional.orElse(null);
+
         if (StringUtils.hasText(customerDTO.getName())) {
-            existing.setName(customerDTO.getName());
+            customerToUpdate.setName(customerDTO.getName());
         }
 
-        return Optional.of(existing);
+        Customer updatedCustomer = this.customerRepository.save(customerToUpdate);
+
+        CustomerDTO updatedCustomerDTO = this.customerMapper.customerToCustomerDTO(updatedCustomer);
+        return Optional.of(updatedCustomerDTO);
     }
 
     @Override
     public Optional<CustomerDTO> deleteCustomerById(UUID customerId) {
-        return Optional.ofNullable(this.customerMap.remove(customerId));
+        Optional<Customer> customerOptional = this.customerRepository.findById(customerId);
+
+        if (customerOptional.isEmpty()) {
+            return Optional.empty();
+        }
+
+        this.customerRepository.deleteById(customerId);
+
+        Customer deletedCustomer = customerOptional.orElse(null);
+        CustomerDTO deletedCustomerDTO = this.customerMapper.customerToCustomerDTO(deletedCustomer);
+
+        return Optional.ofNullable(deletedCustomerDTO);
     }
 }

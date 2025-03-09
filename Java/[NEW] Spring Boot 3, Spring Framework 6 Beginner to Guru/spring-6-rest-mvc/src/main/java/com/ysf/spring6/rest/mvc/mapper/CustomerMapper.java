@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 @Mapper
 public interface CustomerMapper {
 
-    Customer customerToCustomerDTO(Customer customer);
+    CustomerDTO customerToCustomerDTO(Customer customer);
 
-    CustomerDTO customerDTOToCustomer(CustomerDTO customerDTO);
+    Customer customerDTOToCustomer(CustomerDTO customerDTO);
 }

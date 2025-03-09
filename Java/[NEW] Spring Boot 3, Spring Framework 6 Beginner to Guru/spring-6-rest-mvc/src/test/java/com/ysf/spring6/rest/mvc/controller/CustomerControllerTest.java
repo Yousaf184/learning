@@ -2,7 +2,6 @@ package com.ysf.spring6.rest.mvc.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ysf.spring6.rest.mvc.dto.CustomerDTO;
-import com.ysf.spring6.rest.mvc.service.CustomerServiceImpl;
 import com.ysf.spring6.rest.mvc.service.ICustomerService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,8 +19,8 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @WebMvcTest(CustomerController.class)
 class CustomerControllerTest {
@@ -40,20 +39,48 @@ class CustomerControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private CustomerServiceImpl customerServiceImpl;
+    private List<CustomerDTO> testCustomerList;
 
     private static final String CUSTOMER_CONTROLLER_BASE_URL = "/api/v1/customer/";
 
     @BeforeEach
     void setUp() {
-        this.customerServiceImpl = new CustomerServiceImpl();
+        this.testCustomerList = new ArrayList<>();
+
+        CustomerDTO customerDTO1 = CustomerDTO.builder()
+                .id(UUID.randomUUID())
+                .name("Customer 1")
+                .version(1)
+                .createdDate(LocalDateTime.now())
+                .updateDate(LocalDateTime.now())
+                .build();
+
+        CustomerDTO customerDTO2 = CustomerDTO.builder()
+                .id(UUID.randomUUID())
+                .name("Customer 2")
+                .version(1)
+                .createdDate(LocalDateTime.now())
+                .updateDate(LocalDateTime.now())
+                .build();
+
+        CustomerDTO customerDTO3 = CustomerDTO.builder()
+                .id(UUID.randomUUID())
+                .name("Customer 3")
+                .version(1)
+                .createdDate(LocalDateTime.now())
+                .updateDate(LocalDateTime.now())
+                .build();
+
+        this.testCustomerList.add(customerDTO1);
+        this.testCustomerList.add(customerDTO2);
+        this.testCustomerList.add(customerDTO3);
     }
 
     @Test
     @DisplayName("Get all customers")
     void listAllCustomers() throws Exception {
         Mockito.when(this.customerServiceMock.getAllCustomers())
-                .thenReturn(this.customerServiceImpl.getAllCustomers());
+                .thenReturn(this.testCustomerList);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .get(CUSTOMER_CONTROLLER_BASE_URL)
@@ -71,7 +98,7 @@ class CustomerControllerTest {
     @Test
     @DisplayName("Get customer by ID")
     void getCustomerById() throws Exception {
-        CustomerDTO customerDTO = this.customerServiceImpl.getAllCustomers().getFirst();
+        CustomerDTO customerDTO = this.testCustomerList.getFirst();
 
         Mockito.when(this.customerServiceMock.getCustomerById(customerDTO.getId()))
                 .thenReturn(Optional.of(customerDTO));
@@ -98,7 +125,7 @@ class CustomerControllerTest {
     @Test
     @DisplayName("Save new customer")
     void saveNewCustomer() throws Exception {
-        CustomerDTO existingCustomerDTO = this.customerServiceImpl.getAllCustomers().getFirst();
+        CustomerDTO existingCustomerDTO = this.testCustomerList.getFirst();
         CustomerDTO customerDTOToBeCreated = CustomerDTO.builder()
                 .name(existingCustomerDTO.getName())
                 .build();
@@ -136,7 +163,7 @@ class CustomerControllerTest {
     @Test
     @DisplayName("Update existing customer")
     void updateCustomer() throws Exception {
-        CustomerDTO existingCustomerDTO = this.customerServiceImpl.getAllCustomers().getFirst();
+        CustomerDTO existingCustomerDTO = this.testCustomerList.getFirst();
         CustomerDTO updatedCustomerDTOData = CustomerDTO.builder()
                 .name(existingCustomerDTO.getName() + "- UPDATED")
                 .build();
@@ -172,7 +199,7 @@ class CustomerControllerTest {
     @Test
     @DisplayName("Delete customer by id")
     void deleteCustomerById() throws Exception {
-        CustomerDTO customerDTOToDelete = this.customerServiceImpl.getAllCustomers().getFirst();
+        CustomerDTO customerDTOToDelete = this.testCustomerList.getFirst();
 
         Mockito.when(this.customerServiceMock.deleteCustomerById(Mockito.any(UUID.class)))
                 .thenReturn(Optional.of(customerDTOToDelete));
