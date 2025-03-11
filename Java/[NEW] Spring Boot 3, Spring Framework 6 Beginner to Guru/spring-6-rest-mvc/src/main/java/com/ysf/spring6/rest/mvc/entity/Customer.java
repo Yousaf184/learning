@@ -19,6 +19,7 @@ public class Customer {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
+    @Version
     @Column(name = "opt_lock")
     private Integer version;
 
