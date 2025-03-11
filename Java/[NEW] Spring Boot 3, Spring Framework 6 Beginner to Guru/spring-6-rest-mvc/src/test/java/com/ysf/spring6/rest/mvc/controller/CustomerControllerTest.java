@@ -45,9 +45,7 @@ class CustomerControllerTest {
 
     @BeforeEach
     void setUp() {
-        this.testCustomerList = new ArrayList<>();
-
-        CustomerDTO customerDTO1 = CustomerDTO.builder()
+        CustomerDTO customerDTO = CustomerDTO.builder()
                 .id(UUID.randomUUID())
                 .name("Customer 1")
                 .version(1)
@@ -55,25 +53,8 @@ class CustomerControllerTest {
                 .updateDate(LocalDateTime.now())
                 .build();
 
-        CustomerDTO customerDTO2 = CustomerDTO.builder()
-                .id(UUID.randomUUID())
-                .name("Customer 2")
-                .version(1)
-                .createdDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
-                .build();
-
-        CustomerDTO customerDTO3 = CustomerDTO.builder()
-                .id(UUID.randomUUID())
-                .name("Customer 3")
-                .version(1)
-                .createdDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
-                .build();
-
-        this.testCustomerList.add(customerDTO1);
-        this.testCustomerList.add(customerDTO2);
-        this.testCustomerList.add(customerDTO3);
+        this.testCustomerList = new ArrayList<>();
+        this.testCustomerList.add(customerDTO);
     }
 
     @Test
@@ -91,7 +72,7 @@ class CustomerControllerTest {
                 .andExpectAll(
                         MockMvcResultMatchers.status().isOk(),
                         MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON),
-                        MockMvcResultMatchers.jsonPath("$.length()").value(3)
+                        MockMvcResultMatchers.jsonPath("$.length()").value(1)
                 );
     }
 

@@ -51,9 +51,7 @@ class BeerControllerTest {
 
     @BeforeEach
     void setUp() {
-        this.testBeerList = new ArrayList<>();
-
-        BeerDTO beerDTO1 = BeerDTO.builder()
+        BeerDTO beerDTO = BeerDTO.builder()
                 .id(UUID.randomUUID())
                 .version(1)
                 .beerName("Galaxy Cat")
@@ -65,33 +63,8 @@ class BeerControllerTest {
                 .updateDate(LocalDateTime.now())
                 .build();
 
-        BeerDTO beerDTO2 = BeerDTO.builder()
-                .id(UUID.randomUUID())
-                .version(1)
-                .beerName("Crank")
-                .beerStyle(BeerStyle.PALE_ALE)
-                .upc("12356222")
-                .price(new BigDecimal("11.99"))
-                .quantityOnHand(392)
-                .createdDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
-                .build();
-
-        BeerDTO beerDTO3 = BeerDTO.builder()
-                .id(UUID.randomUUID())
-                .version(1)
-                .beerName("Sunshine City")
-                .beerStyle(BeerStyle.IPA)
-                .upc("12356")
-                .price(new BigDecimal("13.99"))
-                .quantityOnHand(144)
-                .createdDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
-                .build();
-
-        this.testBeerList.add(beerDTO1);
-        this.testBeerList.add(beerDTO2);
-        this.testBeerList.add(beerDTO3);
+        this.testBeerList = new ArrayList<>();
+        this.testBeerList.add(beerDTO);
     }
 
     @Test
@@ -109,7 +82,7 @@ class BeerControllerTest {
                 .andExpectAll(
                         MockMvcResultMatchers.status().isOk(),
                         MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON),
-                        MockMvcResultMatchers.jsonPath("$.length()").value(3)
+                        MockMvcResultMatchers.jsonPath("$.length()").value(1)
                 );
     }
 
