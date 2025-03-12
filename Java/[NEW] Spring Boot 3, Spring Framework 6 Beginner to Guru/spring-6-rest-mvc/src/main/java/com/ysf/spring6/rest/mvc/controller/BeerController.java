@@ -26,7 +26,7 @@ public class BeerController {
         return new NotFoundException(errorMsg);
     };
 
-    @GetMapping("/")
+    @GetMapping(value = {"", "/"})
     public ResponseEntity<List<BeerDTO>> listBeers() {
         return ResponseEntity.ok(this.beerService.listBeers());
     }
@@ -39,7 +39,7 @@ public class BeerController {
         return ResponseEntity.ok(beerDTO);
     }
 
-    @PostMapping("/")
+    @PostMapping(value = {"", "/"})
     public ResponseEntity<BeerDTO> saveNewBeer(@RequestBody BeerDTO beerDTO) {
         BeerDTO createdBeerDTO = this.beerService.saveNewBeer(beerDTO);
         return ResponseEntity

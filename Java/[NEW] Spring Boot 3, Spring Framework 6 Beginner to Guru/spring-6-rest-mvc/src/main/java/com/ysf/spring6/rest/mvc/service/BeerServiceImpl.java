@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,6 +47,9 @@ public class BeerServiceImpl implements IBeerService {
             beerDTO.setVersion(null);
         }
 
+        beerDTO.setCreatedDate(LocalDateTime.now());
+        beerDTO.setUpdateDate(LocalDateTime.now());
+
         Beer beerToSave = this.beerMapper.beerDTOToBeer(beerDTO);
         Beer savedBeer = this.beerRepository.save(beerToSave);
 
@@ -81,6 +85,8 @@ public class BeerServiceImpl implements IBeerService {
         if (StringUtils.hasText(beerDTO.getUpc())) {
             beerToUpdate.setUpc(beerDTO.getUpc());
         }
+
+        beerToUpdate.setUpdateDate(LocalDateTime.now());
 
         Beer updatedBeer = this.beerRepository.save(beerToUpdate);
 

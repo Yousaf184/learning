@@ -25,7 +25,7 @@ public class CustomerController {
         return new NotFoundException(errorMsg);
     };
 
-    @GetMapping("/")
+    @GetMapping(value = {"", "/"})
     public ResponseEntity<List<CustomerDTO>> listAllCustomers() {
         return ResponseEntity.ok(this.customerService.getAllCustomers());
     }
@@ -38,7 +38,7 @@ public class CustomerController {
         return ResponseEntity.ok(customerDTO);
     }
 
-    @PostMapping("/")
+    @PostMapping(value = {"", "/"})
     public ResponseEntity<CustomerDTO> saveNewCustomer(@RequestBody CustomerDTO customerDTO) {
         CustomerDTO createdCustomerDTO = this.customerService.saveNewCustomer(customerDTO);
         return ResponseEntity

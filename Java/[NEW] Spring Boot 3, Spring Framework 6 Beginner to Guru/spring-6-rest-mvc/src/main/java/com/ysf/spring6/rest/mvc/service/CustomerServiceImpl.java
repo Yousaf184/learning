@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,6 +48,9 @@ public class CustomerServiceImpl implements ICustomerService {
             customerDTO.setVersion(null);
         }
 
+        customerDTO.setCreatedDate(LocalDateTime.now());
+        customerDTO.setUpdateDate(LocalDateTime.now());
+
         Customer customerToSave = this.customerMapper.customerDTOToCustomer(customerDTO);
         Customer savedCustomer = this.customerRepository.save(customerToSave);
 
@@ -66,6 +70,8 @@ public class CustomerServiceImpl implements ICustomerService {
         if (StringUtils.hasText(customerDTO.getName())) {
             customerToUpdate.setName(customerDTO.getName());
         }
+
+        customerToUpdate.setUpdateDate(LocalDateTime.now());
 
         Customer updatedCustomer = this.customerRepository.save(customerToUpdate);
 
