@@ -3,6 +3,7 @@ package com.ysf.spring6.rest.mvc.controller;
 import com.ysf.spring6.rest.mvc.exceptions.NotFoundException;
 import com.ysf.spring6.rest.mvc.dto.CustomerDTO;
 import com.ysf.spring6.rest.mvc.service.ICustomerService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class CustomerController {
     }
 
     @PostMapping(value = {"", "/"})
-    public ResponseEntity<CustomerDTO> saveNewCustomer(@RequestBody CustomerDTO customerDTO) {
+    public ResponseEntity<CustomerDTO> saveNewCustomer(@Valid @RequestBody CustomerDTO customerDTO) {
         CustomerDTO createdCustomerDTO = this.customerService.saveNewCustomer(customerDTO);
         return ResponseEntity
                 .status(HttpStatus.CREATED)

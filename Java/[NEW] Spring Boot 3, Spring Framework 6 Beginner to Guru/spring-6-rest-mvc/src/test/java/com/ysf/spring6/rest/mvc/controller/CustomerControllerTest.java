@@ -13,6 +13,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @WebMvcTest(CustomerController.class)
+@ActiveProfiles("test")
 class CustomerControllerTest {
 
     @Autowired
@@ -139,6 +141,59 @@ class CustomerControllerTest {
         Assertions.assertNull(capturedCustomerDTO.getVersion());
         Assertions.assertNull(capturedCustomerDTO.getCreatedDate());
         Assertions.assertNull(capturedCustomerDTO.getUpdateDate());
+    }
+
+    @Test
+    @DisplayName("Validate customer fields before saving")
+    void validateCustomerDataBeforeSave() throws Exception {
+        CustomerDTO emptyCustomerDTO = CustomerDTO.builder().build();
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post(CUSTOMER_CONTROLLER_BASE_URL)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(emptyCustomerDTO));
+
+        final int ERROR_FIELD_COUNT = 1;
+        this.mockMvc
+                .perform(request)
+                .andExpectAll(
+                        MockMvcResultMatchers.status().isBadRequest(),
+                        MockMvcResultMatchers.jsonPath("$.status").value("error"),
+                        MockMvcResultMatchers.jsonPath("$.errors").exists(),
+                        MockMvcResultMatchers.jsonPath("$.errors.length()").value(ERROR_FIELD_COUNT),
+                        MockMvcResultMatchers.jsonPath("$.errors.name").exists()
+                );
+
+        Mockito.verify(this.customerServiceMock, Mockito.never())
+                .saveNewCustomer(Mockito.any());
+    }
+
+    @Test
+    @DisplayName("Validate max size constraints on customer fields")
+    void validateMaxSizeConstraintsOnBeerFields() throws Exception {
+        CustomerDTO testCustomerDTO = this.testCustomerList.getFirst();
+        testCustomerDTO.setName("test".repeat(300));
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post(CUSTOMER_CONTROLLER_BASE_URL)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(testCustomerDTO));
+
+        final int ERROR_FIELD_COUNT = 1;
+        this.mockMvc
+                .perform(request)
+                .andExpectAll(
+                        MockMvcResultMatchers.status().isBadRequest(),
+                        MockMvcResultMatchers.jsonPath("$.status").value("error"),
+                        MockMvcResultMatchers.jsonPath("$.errors").exists(),
+                        MockMvcResultMatchers.jsonPath("$.errors.length()").value(ERROR_FIELD_COUNT),
+                        MockMvcResultMatchers.jsonPath("$.errors.name").exists()
+                );
+
+        Mockito.verify(this.customerServiceMock, Mockito.never())
+                .saveNewCustomer(Mockito.any());
     }
 
     @Test

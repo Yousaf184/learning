@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -29,6 +30,7 @@ import java.util.UUID;
 
 
 @WebMvcTest(BeerController.class)
+@ActiveProfiles("test")
 class BeerControllerTest {
 
     @Autowired
@@ -153,6 +155,68 @@ class BeerControllerTest {
         Assertions.assertNull(capturedBeerDTO.getVersion());
         Assertions.assertNull(capturedBeerDTO.getCreatedDate());
         Assertions.assertNull(capturedBeerDTO.getUpdateDate());
+    }
+
+    @Test
+    @DisplayName("Validate beer fields before saving")
+    void validateBeerDataBeforeSave() throws Exception {
+        BeerDTO emptyBeerDTO = BeerDTO.builder().build();
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post(BEER_CONTROLLER_BASE_URL)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(emptyBeerDTO));
+
+        final int ERROR_FIELD_COUNT = 5;
+        this.mockMvc
+                .perform(request)
+                .andExpectAll(
+                        MockMvcResultMatchers.status().isBadRequest(),
+                        MockMvcResultMatchers.jsonPath("$.status").value("error"),
+                        MockMvcResultMatchers.jsonPath("$.errors").exists(),
+                        MockMvcResultMatchers.jsonPath("$.errors.length()").value(ERROR_FIELD_COUNT),
+                        MockMvcResultMatchers.jsonPath("$.errors.beerName").exists(),
+                        MockMvcResultMatchers.jsonPath("$.errors.beerStyle").exists(),
+                        MockMvcResultMatchers.jsonPath("$.errors.upc").exists(),
+                        MockMvcResultMatchers.jsonPath("$.errors.quantityOnHand").exists(),
+                        MockMvcResultMatchers.jsonPath("$.errors.price").exists()
+                );
+
+        Mockito.verify(this.beerServiceMock, Mockito.never())
+                .saveNewBeer(Mockito.any());
+    }
+
+    @Test
+    @DisplayName("Validate max size constraints on beer fields")
+    void validateMaxSizeConstraintsOnBeerFields() throws Exception {
+        BeerDTO testBeerDTO = this.testBeerList.getFirst();
+
+        testBeerDTO.setBeerName("test".repeat(300));
+        testBeerDTO.setUpc("test".repeat(255));
+        testBeerDTO.setQuantityOnHand(2_000_000_000); // 2 billion
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post(BEER_CONTROLLER_BASE_URL)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(testBeerDTO));
+
+        final int ERROR_FIELD_COUNT = 3;
+        this.mockMvc
+                .perform(request)
+                .andExpectAll(
+                        MockMvcResultMatchers.status().isBadRequest(),
+                        MockMvcResultMatchers.jsonPath("$.status").value("error"),
+                        MockMvcResultMatchers.jsonPath("$.errors").exists(),
+                        MockMvcResultMatchers.jsonPath("$.errors.length()").value(ERROR_FIELD_COUNT),
+                        MockMvcResultMatchers.jsonPath("$.errors.beerName").exists(),
+                        MockMvcResultMatchers.jsonPath("$.errors.upc").exists(),
+                        MockMvcResultMatchers.jsonPath("$.errors.quantityOnHand").exists()
+                );
+
+        Mockito.verify(this.beerServiceMock, Mockito.never())
+                .saveNewBeer(Mockito.any());
     }
 
     @Test

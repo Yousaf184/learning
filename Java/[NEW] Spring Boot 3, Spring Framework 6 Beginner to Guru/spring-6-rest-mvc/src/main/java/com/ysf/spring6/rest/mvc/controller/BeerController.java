@@ -3,6 +3,7 @@ package com.ysf.spring6.rest.mvc.controller;
 import com.ysf.spring6.rest.mvc.exceptions.NotFoundException;
 import com.ysf.spring6.rest.mvc.dto.BeerDTO;
 import com.ysf.spring6.rest.mvc.service.IBeerService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -40,7 +41,7 @@ public class BeerController {
     }
 
     @PostMapping(value = {"", "/"})
-    public ResponseEntity<BeerDTO> saveNewBeer(@RequestBody BeerDTO beerDTO) {
+    public ResponseEntity<BeerDTO> saveNewBeer(@Valid @RequestBody BeerDTO beerDTO) {
         BeerDTO createdBeerDTO = this.beerService.saveNewBeer(beerDTO);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
