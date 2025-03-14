@@ -22,6 +22,7 @@ class BeerRepositoryTest {
     @Test
     @DisplayName("Test beer data populated")
     void testBeerDataPopulated() {
-        Assertions.assertEquals(3, this.beerRepository.count());
+        final int TEST_BEER_DATA_COUNT = 2413;
+        Assertions.assertEquals(TEST_BEER_DATA_COUNT, this.beerRepository.count());
     }
 }

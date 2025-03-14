@@ -53,9 +53,10 @@ class BeerControllerIT {
         ResponseEntity<List<BeerDTO>> responseEntity = this.beerController.listBeers();
         List<BeerDTO> beerList = responseEntity.getBody();
 
+        final int TEST_BEER_DATA_COUNT = 2413;
         Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         Assertions.assertNotNull(beerList);
-        Assertions.assertEquals(3, beerList.size());
+        Assertions.assertEquals(TEST_BEER_DATA_COUNT, beerList.size());
     }
 
     @Test
