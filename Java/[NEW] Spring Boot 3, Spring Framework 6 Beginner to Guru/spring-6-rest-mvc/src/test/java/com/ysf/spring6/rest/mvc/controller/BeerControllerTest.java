@@ -13,6 +13,8 @@ import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -52,6 +54,7 @@ class BeerControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private Page<BeerDTO> paginatedBeerDTOResponse;
     private List<BeerDTO> testBeerList;
 
     private static final String BEER_CONTROLLER_BASE_URL = "/api/v1/beer/";
@@ -72,32 +75,41 @@ class BeerControllerTest {
 
         this.testBeerList = new ArrayList<>();
         this.testBeerList.add(beerDTO);
+        this.paginatedBeerDTOResponse = new PageImpl<>(this.testBeerList);
     }
 
     @Test
     @DisplayName("Get all beers")
     void listBeers() throws Exception {
-        Mockito.when(this.beerServiceMock.listBeers(null, null))
-                .thenReturn(this.testBeerList);
+        Mockito.when(this.beerServiceMock.listBeers(Mockito.isNull(), Mockito.isNull(), Mockito.anyMap()))
+                .thenReturn(this.paginatedBeerDTOResponse);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .get(BEER_CONTROLLER_BASE_URL)
                 .accept(MediaType.APPLICATION_JSON);
 
+        final int TEST_BEER_LIST_SIZE = 1;
         this.mockMvc
                 .perform(request)
                 .andExpectAll(
                         MockMvcResultMatchers.status().isOk(),
                         MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON),
-                        MockMvcResultMatchers.jsonPath("$.length()").value(1)
+                        MockMvcResultMatchers.jsonPath("$.data.length()").value(TEST_BEER_LIST_SIZE),
+                        MockMvcResultMatchers.jsonPath("$.currentRecordCount").value(TEST_BEER_LIST_SIZE),
+                        MockMvcResultMatchers.jsonPath("$.currentPageNumber").value(TEST_BEER_LIST_SIZE),
+                        MockMvcResultMatchers.jsonPath("$.pageSize").value(TEST_BEER_LIST_SIZE),
+                        MockMvcResultMatchers.jsonPath("$.totalPageCount").value(TEST_BEER_LIST_SIZE),
+                        MockMvcResultMatchers.jsonPath("$.totalRowCount").value(TEST_BEER_LIST_SIZE),
+                        MockMvcResultMatchers.jsonPath("$.sortKey").value("beerName"),
+                        MockMvcResultMatchers.jsonPath("$.sortOrder").value("asc")
                 );
     }
 
     @Test
     @DisplayName("Get all beers by name")
     void getAllBeersMatchingNameIgnoreCase() throws Exception {
-        Mockito.when(this.beerServiceMock.listBeers(Mockito.anyString(), Mockito.isNull()))
-                .thenReturn(this.testBeerList);
+        Mockito.when(this.beerServiceMock.listBeers(Mockito.anyString(), Mockito.isNull(), Mockito.anyMap()))
+                .thenReturn(this.paginatedBeerDTOResponse);
 
         final String beerNameToSearch = "galaxy";
         String requestUrl = UriComponentsBuilder.fromUriString(BEER_CONTROLLER_BASE_URL)
@@ -116,7 +128,7 @@ class BeerControllerTest {
                 );
 
         Mockito.verify(this.beerServiceMock, Mockito.atMostOnce())
-                .listBeers(this.beerNameCaptor.capture(), Mockito.isNull());
+                .listBeers(this.beerNameCaptor.capture(), Mockito.isNull(), Mockito.anyMap());
 
         String capturedBeerName = this.beerNameCaptor.getValue();
         Assertions.assertEquals(beerNameToSearch, capturedBeerName);
@@ -125,8 +137,8 @@ class BeerControllerTest {
     @Test
     @DisplayName("Get all beers by beer style")
     void getAllBeersBeerStyle() throws Exception {
-        Mockito.when(this.beerServiceMock.listBeers(Mockito.isNull(), Mockito.any(BeerStyle.class)))
-                .thenReturn(this.testBeerList);
+        Mockito.when(this.beerServiceMock.listBeers(Mockito.isNull(), Mockito.any(BeerStyle.class), Mockito.anyMap()))
+                .thenReturn(this.paginatedBeerDTOResponse);
 
         final String beerStyleToSearch = BeerStyle.PALE_ALE.toString();
         String requestUrl = UriComponentsBuilder.fromUriString(BEER_CONTROLLER_BASE_URL)
@@ -145,7 +157,7 @@ class BeerControllerTest {
                 );
 
         Mockito.verify(this.beerServiceMock, Mockito.atMostOnce())
-                .listBeers(Mockito.isNull(), this.beerStyleCaptor.capture());
+                .listBeers(Mockito.isNull(), this.beerStyleCaptor.capture(), Mockito.anyMap());
 
         BeerStyle capturedBeerStyle = this.beerStyleCaptor.getValue();
         Assertions.assertEquals(beerStyleToSearch, capturedBeerStyle.toString());
@@ -154,10 +166,10 @@ class BeerControllerTest {
     @Test
     @DisplayName("Get all beers by name and beer style")
     void getAllBeersMatchingNameIgnoreCaseAndBeerStyle() throws Exception {
-        Mockito.when(this.beerServiceMock.listBeers(Mockito.anyString(), Mockito.any(BeerStyle.class)))
-                .thenReturn(this.testBeerList);
+        Mockito.when(this.beerServiceMock.listBeers(Mockito.anyString(), Mockito.any(BeerStyle.class), Mockito.anyMap()))
+                .thenReturn(this.paginatedBeerDTOResponse);
 
-        final String beerNameToSearch = "galaxy";
+        final String beerNameToSearch = "lift";
         final String beerStyleToSearch = BeerStyle.PALE_ALE.toString();
         String requestUrl = UriComponentsBuilder.fromUriString(BEER_CONTROLLER_BASE_URL)
                 .queryParam("beerName", beerNameToSearch)
@@ -176,7 +188,7 @@ class BeerControllerTest {
                 );
 
         Mockito.verify(this.beerServiceMock, Mockito.atMostOnce())
-                .listBeers(this.beerNameCaptor.capture(), this.beerStyleCaptor.capture());
+                .listBeers(this.beerNameCaptor.capture(), this.beerStyleCaptor.capture(), Mockito.anyMap());
 
         String capturedBeerName = this.beerNameCaptor.getValue();
         BeerStyle capturedBeerStyle = this.beerStyleCaptor.getValue();

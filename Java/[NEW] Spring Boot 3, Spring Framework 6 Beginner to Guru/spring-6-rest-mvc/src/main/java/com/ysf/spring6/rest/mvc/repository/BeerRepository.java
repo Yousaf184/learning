@@ -2,18 +2,19 @@ package com.ysf.spring6.rest.mvc.repository;
 
 import com.ysf.spring6.rest.mvc.constants.BeerStyle;
 import com.ysf.spring6.rest.mvc.entity.Beer;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.UUID;
 
 @Repository
 public interface BeerRepository extends JpaRepository<Beer, UUID> {
 
-    List<Beer> findByBeerNameLikeIgnoreCase(String beerName);
+    Page<Beer> findByBeerNameLikeIgnoreCase(String beerName, Pageable pageable);
 
-    List<Beer> findByBeerStyle(BeerStyle beerStyle);
+    Page<Beer> findByBeerStyle(BeerStyle beerStyle, Pageable pageable);
 
-    List<Beer> findByBeerNameLikeIgnoreCaseAndBeerStyle(String beerName, BeerStyle beerStyle);
+    Page<Beer> findByBeerNameLikeIgnoreCaseAndBeerStyle(String beerName, BeerStyle beerStyle, Pageable pageable);
 }

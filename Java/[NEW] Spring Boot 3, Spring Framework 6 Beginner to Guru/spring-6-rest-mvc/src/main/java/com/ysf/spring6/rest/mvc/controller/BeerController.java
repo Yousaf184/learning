@@ -7,13 +7,12 @@ import com.ysf.spring6.rest.mvc.service.IBeerService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Supplier;
 
 @Slf4j
@@ -29,11 +28,33 @@ public class BeerController {
     };
 
     @GetMapping(value = {"", "/"})
-    public ResponseEntity<List<BeerDTO>> listBeers(
+    public ResponseEntity<Map<String, Object>> listBeers(
         @RequestParam(name = "beerName", required = false) String beerName,
-        @RequestParam(name = "beerStyle", required = false) BeerStyle beerStyle
+        @RequestParam(name = "beerStyle", required = false) BeerStyle beerStyle,
+        @RequestParam(name = "page", required = false, defaultValue = "1") int pageNum,
+        @RequestParam(name = "pageSize", required = false, defaultValue = "5") int pageSize,
+        @RequestParam(name = "sortByField", required = false, defaultValue = "beerName") String sortByField,
+        @RequestParam(name = "sortOrder", required = false, defaultValue = "asc") String sortOrder
     ) {
-        return ResponseEntity.ok(this.beerService.listBeers(beerName, beerStyle));
+        Map<String, Object> paginationAndSortParams = new HashMap<>();
+        paginationAndSortParams.put("pageNum", pageNum);
+        paginationAndSortParams.put("pageSize", pageSize);
+        paginationAndSortParams.put("sortByField", sortByField);
+        paginationAndSortParams.put("sortOrder", sortOrder);
+
+        Page<BeerDTO> paginatedBeerData = this.beerService.listBeers(beerName, beerStyle, paginationAndSortParams);
+
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("data", paginatedBeerData.getContent());
+        responseMap.put("currentRecordCount", paginatedBeerData.getNumberOfElements());
+        responseMap.put("currentPageNumber", pageNum);
+        responseMap.put("pageSize", paginatedBeerData.getSize());
+        responseMap.put("totalPageCount", paginatedBeerData.getTotalPages());
+        responseMap.put("totalRowCount", paginatedBeerData.getTotalElements());
+        responseMap.put("sortKey", sortByField);
+        responseMap.put("sortOrder", sortOrder);
+
+        return ResponseEntity.ok(responseMap);
     }
 
     @GetMapping("/{beerId}")

@@ -6,12 +6,15 @@ import com.ysf.spring6.rest.mvc.entity.Beer;
 import com.ysf.spring6.rest.mvc.mapper.BeerMapper;
 import com.ysf.spring6.rest.mvc.repository.BeerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,35 +23,52 @@ public class BeerServiceImpl implements IBeerService {
     private final BeerRepository beerRepository;
     private final BeerMapper beerMapper;
 
+    private static final int DEFAULT_MAX_PAGE_SIZE = 50;
+
     @Override
-    public List<BeerDTO> listBeers(String beerName, BeerStyle beerStyle) {
-        List<Beer> beersList;
+    public Page<BeerDTO> listBeers(String beerName, BeerStyle beerStyle, Map<String, Object> paginationAndSortParams) {
+        Page<Beer> beersPage;
+
+        Pageable pageAndSortConfig = this.buildPageAndSortRequest(paginationAndSortParams);
 
         if ((beerName != null && !beerName.isBlank()) && beerStyle == null) {
-            beersList = this.getBeersListByName(beerName);
+            beersPage = this.getBeersListByName(beerName, pageAndSortConfig);
         } else if ((beerName == null || beerName.isBlank()) && beerStyle != null) {
-            beersList = this.getBeersListByBeerStyle(beerStyle);
+            beersPage = this.getBeersListByBeerStyle(beerStyle, pageAndSortConfig);
         } else if ((beerName != null && !beerName.isBlank()) && beerStyle != null) {
-            beersList = this.getBeersListByNameAndStyle(beerName, beerStyle);
+            beersPage = this.getBeersListByNameAndStyle(beerName, beerStyle, pageAndSortConfig);
         } else {
-            beersList = this.beerRepository.findAll();
+            beersPage = this.beerRepository.findAll(pageAndSortConfig);
         }
 
-        return beersList.stream()
-                .map(this.beerMapper::beerToBeerDTO)
-                .collect(Collectors.toList());
+        return beersPage.map(beerMapper::beerToBeerDTO);
     }
 
-    public List<Beer> getBeersListByName(String beerName) {
-        return this.beerRepository.findByBeerNameLikeIgnoreCase("%" + beerName + "%");
+    private PageRequest buildPageAndSortRequest(Map<String, Object> paginationAndSortParams) {
+        int pageNumber = (int) paginationAndSortParams.get("pageNum") - 1; // page numbers start from zero
+
+        int pageSize = (int) paginationAndSortParams.get("pageSize");
+        pageSize = Math.min(pageSize, DEFAULT_MAX_PAGE_SIZE);
+
+        String sortByField = (String) paginationAndSortParams.get("sortByField");
+        String sortOrder = (String) paginationAndSortParams.get("sortOrder");
+        Sort sortConfig = sortOrder.equals("asc")
+                ? Sort.by(sortByField).ascending()
+                : Sort.by(sortByField).descending();
+
+        return  PageRequest.of(pageNumber, pageSize, sortConfig);
     }
 
-    public List<Beer> getBeersListByBeerStyle(BeerStyle beerStyle) {
-        return this.beerRepository.findByBeerStyle(beerStyle);
+    private Page<Beer> getBeersListByName(String beerName, Pageable pageAndSortConfig) {
+        return this.beerRepository.findByBeerNameLikeIgnoreCase("%" + beerName + "%", pageAndSortConfig);
     }
 
-    public List<Beer> getBeersListByNameAndStyle(String beerName, BeerStyle beerStyle) {
-        return this.beerRepository.findByBeerNameLikeIgnoreCaseAndBeerStyle("%" + beerName + "%", beerStyle);
+    private Page<Beer> getBeersListByBeerStyle(BeerStyle beerStyle, Pageable pageAndSortConfig) {
+        return this.beerRepository.findByBeerStyle(beerStyle, pageAndSortConfig);
+    }
+
+    private Page<Beer> getBeersListByNameAndStyle(String beerName, BeerStyle beerStyle, Pageable pageAndSortConfig) {
+        return this.beerRepository.findByBeerNameLikeIgnoreCaseAndBeerStyle("%" + beerName + "%", beerStyle, pageAndSortConfig);
     }
 
     @Override
