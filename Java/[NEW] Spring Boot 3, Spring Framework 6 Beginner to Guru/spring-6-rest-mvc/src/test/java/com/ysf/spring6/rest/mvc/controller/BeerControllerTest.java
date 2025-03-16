@@ -20,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -40,6 +41,10 @@ class BeerControllerTest {
     private ArgumentCaptor<UUID> beerIdCaptor;
     @Captor
     private ArgumentCaptor<BeerDTO> beerCaptor;
+    @Captor
+    private ArgumentCaptor<String> beerNameCaptor;
+    @Captor
+    private ArgumentCaptor<BeerStyle> beerStyleCaptor;
 
     @MockitoBean
     private IBeerService beerServiceMock;
@@ -72,7 +77,7 @@ class BeerControllerTest {
     @Test
     @DisplayName("Get all beers")
     void listBeers() throws Exception {
-        Mockito.when(this.beerServiceMock.listBeers())
+        Mockito.when(this.beerServiceMock.listBeers(null, null))
                 .thenReturn(this.testBeerList);
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
@@ -86,6 +91,97 @@ class BeerControllerTest {
                         MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON),
                         MockMvcResultMatchers.jsonPath("$.length()").value(1)
                 );
+    }
+
+    @Test
+    @DisplayName("Get all beers by name")
+    void getAllBeersMatchingNameIgnoreCase() throws Exception {
+        Mockito.when(this.beerServiceMock.listBeers(Mockito.anyString(), Mockito.isNull()))
+                .thenReturn(this.testBeerList);
+
+        final String beerNameToSearch = "galaxy";
+        String requestUrl = UriComponentsBuilder.fromUriString(BEER_CONTROLLER_BASE_URL)
+                .queryParam("beerName", beerNameToSearch)
+                .toUriString();
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .get(requestUrl)
+                .accept(MediaType.APPLICATION_JSON);
+
+        this.mockMvc
+                .perform(request)
+                .andExpectAll(
+                        MockMvcResultMatchers.status().isOk(),
+                        MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON)
+                );
+
+        Mockito.verify(this.beerServiceMock, Mockito.atMostOnce())
+                .listBeers(this.beerNameCaptor.capture(), Mockito.isNull());
+
+        String capturedBeerName = this.beerNameCaptor.getValue();
+        Assertions.assertEquals(beerNameToSearch, capturedBeerName);
+    }
+
+    @Test
+    @DisplayName("Get all beers by beer style")
+    void getAllBeersBeerStyle() throws Exception {
+        Mockito.when(this.beerServiceMock.listBeers(Mockito.isNull(), Mockito.any(BeerStyle.class)))
+                .thenReturn(this.testBeerList);
+
+        final String beerStyleToSearch = BeerStyle.PALE_ALE.toString();
+        String requestUrl = UriComponentsBuilder.fromUriString(BEER_CONTROLLER_BASE_URL)
+                .queryParam("beerStyle", beerStyleToSearch)
+                .toUriString();
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .get(requestUrl)
+                .accept(MediaType.APPLICATION_JSON);
+
+        this.mockMvc
+                .perform(request)
+                .andExpectAll(
+                        MockMvcResultMatchers.status().isOk(),
+                        MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON)
+                );
+
+        Mockito.verify(this.beerServiceMock, Mockito.atMostOnce())
+                .listBeers(Mockito.isNull(), this.beerStyleCaptor.capture());
+
+        BeerStyle capturedBeerStyle = this.beerStyleCaptor.getValue();
+        Assertions.assertEquals(beerStyleToSearch, capturedBeerStyle.toString());
+    }
+
+    @Test
+    @DisplayName("Get all beers by name and beer style")
+    void getAllBeersMatchingNameIgnoreCaseAndBeerStyle() throws Exception {
+        Mockito.when(this.beerServiceMock.listBeers(Mockito.anyString(), Mockito.any(BeerStyle.class)))
+                .thenReturn(this.testBeerList);
+
+        final String beerNameToSearch = "galaxy";
+        final String beerStyleToSearch = BeerStyle.PALE_ALE.toString();
+        String requestUrl = UriComponentsBuilder.fromUriString(BEER_CONTROLLER_BASE_URL)
+                .queryParam("beerName", beerNameToSearch)
+                .queryParam("beerStyle", beerStyleToSearch)
+                .toUriString();
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .get(requestUrl)
+                .accept(MediaType.APPLICATION_JSON);
+
+        this.mockMvc
+                .perform(request)
+                .andExpectAll(
+                        MockMvcResultMatchers.status().isOk(),
+                        MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON)
+                );
+
+        Mockito.verify(this.beerServiceMock, Mockito.atMostOnce())
+                .listBeers(this.beerNameCaptor.capture(), this.beerStyleCaptor.capture());
+
+        String capturedBeerName = this.beerNameCaptor.getValue();
+        BeerStyle capturedBeerStyle = this.beerStyleCaptor.getValue();
+        Assertions.assertEquals(beerNameToSearch, capturedBeerName);
+        Assertions.assertEquals(beerStyleToSearch, capturedBeerStyle.toString());
     }
 
     @Test

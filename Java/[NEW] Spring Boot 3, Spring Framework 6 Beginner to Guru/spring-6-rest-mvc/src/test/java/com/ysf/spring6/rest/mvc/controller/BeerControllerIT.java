@@ -38,9 +38,9 @@ class BeerControllerIT {
 
     @Autowired
     public BeerControllerIT(
-        BeerController beerController,
-        BeerRepository beerRepository,
-        BeerMapper beerMapper
+            BeerController beerController,
+            BeerRepository beerRepository,
+            BeerMapper beerMapper
     ) {
         this.beerController = beerController;
         this.beerRepository = beerRepository;
@@ -50,7 +50,7 @@ class BeerControllerIT {
     @Test
     @DisplayName("Get all beers")
     void getAllBeers() {
-        ResponseEntity<List<BeerDTO>> responseEntity = this.beerController.listBeers();
+        ResponseEntity<List<BeerDTO>> responseEntity = this.beerController.listBeers(null, null);
         List<BeerDTO> beerList = responseEntity.getBody();
 
         final int TEST_BEER_DATA_COUNT = 2413;
@@ -64,12 +64,52 @@ class BeerControllerIT {
     void emptyBeerTableReturnsEmptyList() {
         this.beerRepository.deleteAll();
 
-        ResponseEntity<List<BeerDTO>> responseEntity = this.beerController.listBeers();
+        ResponseEntity<List<BeerDTO>> responseEntity = this.beerController.listBeers(null, null);
         List<BeerDTO> beerList = responseEntity.getBody();
 
         Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         Assertions.assertNotNull(beerList);
         Assertions.assertEquals(0, beerList.size());
+    }
+
+    @Test
+    @DisplayName("Get all beers by name")
+    void getAllBeersMatchingNameIgnoreCase() {
+        final String beerNameToSearch = "galaxy";
+        ResponseEntity<List<BeerDTO>> responseEntity = this.beerController.listBeers(beerNameToSearch, null);
+        List<BeerDTO> beerList = responseEntity.getBody();
+
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        final int GALAXY_BEER_COUNT = 5;
+        Assertions.assertNotNull(beerList);
+        Assertions.assertEquals(GALAXY_BEER_COUNT, beerList.size());
+    }
+
+    @Test
+    @DisplayName("Get all beers by beer style")
+    void getAllBeersBeerStyle() {
+        final BeerStyle beerStyleToSearch = BeerStyle.IPA;
+        ResponseEntity<List<BeerDTO>> responseEntity = this.beerController.listBeers(null, beerStyleToSearch);
+        List<BeerDTO> beerList = responseEntity.getBody();
+
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        final int IPA_STYLE_BEER_COUNT = 548;
+        Assertions.assertNotNull(beerList);
+        Assertions.assertEquals(IPA_STYLE_BEER_COUNT, beerList.size());
+    }
+
+    @Test
+    @DisplayName("Get all beers by name and beer style")
+    void getAllBeersMatchingNameIgnoreCaseAndBeerStyle() {
+        final String beerNameToSearch = "galaxy";
+        final BeerStyle beerStyleToSearch = BeerStyle.IPA;
+        ResponseEntity<List<BeerDTO>> responseEntity = this.beerController.listBeers(beerNameToSearch, beerStyleToSearch);
+        List<BeerDTO> beerList = responseEntity.getBody();
+
+        Assertions.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        final int IPA_STYLE_GALAXY_BEER_COUNT = 4;
+        Assertions.assertNotNull(beerList);
+        Assertions.assertEquals(IPA_STYLE_GALAXY_BEER_COUNT, beerList.size());
     }
 
     @Test

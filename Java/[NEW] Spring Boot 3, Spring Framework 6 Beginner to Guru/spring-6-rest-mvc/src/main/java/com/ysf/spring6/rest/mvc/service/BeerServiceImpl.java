@@ -1,5 +1,6 @@
 package com.ysf.spring6.rest.mvc.service;
 
+import com.ysf.spring6.rest.mvc.constants.BeerStyle;
 import com.ysf.spring6.rest.mvc.dto.BeerDTO;
 import com.ysf.spring6.rest.mvc.entity.Beer;
 import com.ysf.spring6.rest.mvc.mapper.BeerMapper;
@@ -20,11 +21,34 @@ public class BeerServiceImpl implements IBeerService {
     private final BeerMapper beerMapper;
 
     @Override
-    public List<BeerDTO> listBeers(){
-        return this.beerRepository.findAll()
-                .stream()
+    public List<BeerDTO> listBeers(String beerName, BeerStyle beerStyle) {
+        List<Beer> beersList;
+
+        if ((beerName != null && !beerName.isBlank()) && beerStyle == null) {
+            beersList = this.getBeersListByName(beerName);
+        } else if ((beerName == null || beerName.isBlank()) && beerStyle != null) {
+            beersList = this.getBeersListByBeerStyle(beerStyle);
+        } else if ((beerName != null && !beerName.isBlank()) && beerStyle != null) {
+            beersList = this.getBeersListByNameAndStyle(beerName, beerStyle);
+        } else {
+            beersList = this.beerRepository.findAll();
+        }
+
+        return beersList.stream()
                 .map(this.beerMapper::beerToBeerDTO)
                 .collect(Collectors.toList());
+    }
+
+    public List<Beer> getBeersListByName(String beerName) {
+        return this.beerRepository.findByBeerNameLikeIgnoreCase("%" + beerName + "%");
+    }
+
+    public List<Beer> getBeersListByBeerStyle(BeerStyle beerStyle) {
+        return this.beerRepository.findByBeerStyle(beerStyle);
+    }
+
+    public List<Beer> getBeersListByNameAndStyle(String beerName, BeerStyle beerStyle) {
+        return this.beerRepository.findByBeerNameLikeIgnoreCaseAndBeerStyle("%" + beerName + "%", beerStyle);
     }
 
     @Override

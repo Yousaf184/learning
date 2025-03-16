@@ -1,5 +1,6 @@
 package com.ysf.spring6.rest.mvc.controller;
 
+import com.ysf.spring6.rest.mvc.constants.BeerStyle;
 import com.ysf.spring6.rest.mvc.exceptions.NotFoundException;
 import com.ysf.spring6.rest.mvc.dto.BeerDTO;
 import com.ysf.spring6.rest.mvc.service.IBeerService;
@@ -28,8 +29,11 @@ public class BeerController {
     };
 
     @GetMapping(value = {"", "/"})
-    public ResponseEntity<List<BeerDTO>> listBeers() {
-        return ResponseEntity.ok(this.beerService.listBeers());
+    public ResponseEntity<List<BeerDTO>> listBeers(
+        @RequestParam(name = "beerName", required = false) String beerName,
+        @RequestParam(name = "beerStyle", required = false) BeerStyle beerStyle
+    ) {
+        return ResponseEntity.ok(this.beerService.listBeers(beerName, beerStyle));
     }
 
     @GetMapping("/{beerId}")
