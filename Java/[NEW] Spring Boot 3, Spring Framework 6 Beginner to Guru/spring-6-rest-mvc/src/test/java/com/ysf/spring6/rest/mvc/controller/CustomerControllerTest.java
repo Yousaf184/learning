@@ -1,6 +1,7 @@
 package com.ysf.spring6.rest.mvc.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ysf.spring6.rest.mvc.config.SecurityConfig;
 import com.ysf.spring6.rest.mvc.dto.CustomerDTO;
 import com.ysf.spring6.rest.mvc.service.ICustomerService;
 import org.junit.jupiter.api.Assertions;
@@ -11,8 +12,11 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -24,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @WebMvcTest(CustomerController.class)
+@Import(SecurityConfig.class)
 @ActiveProfiles("test")
 class CustomerControllerTest {
 
@@ -44,6 +49,11 @@ class CustomerControllerTest {
     private List<CustomerDTO> testCustomerList;
 
     private static final String CUSTOMER_CONTROLLER_BASE_URL = "/api/v1/customer/";
+
+    @Value("${spring.security.user.name}")
+    private String testUsername;
+    @Value("${spring.security.user.password}")
+    private String testUserPassword;
 
     @BeforeEach
     void setUp() {
@@ -67,6 +77,7 @@ class CustomerControllerTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .get(CUSTOMER_CONTROLLER_BASE_URL)
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(testUsername, testUserPassword))
                 .accept(MediaType.APPLICATION_JSON);
 
         this.mockMvc
@@ -88,6 +99,7 @@ class CustomerControllerTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .get(CUSTOMER_CONTROLLER_BASE_URL + customerDTO.getId())
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(testUsername, testUserPassword))
                 .accept(MediaType.APPLICATION_JSON);
 
         this.mockMvc
@@ -118,6 +130,7 @@ class CustomerControllerTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .post(CUSTOMER_CONTROLLER_BASE_URL)
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(testUsername, testUserPassword))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(customerDTOToBeCreated));
@@ -150,6 +163,7 @@ class CustomerControllerTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .post(CUSTOMER_CONTROLLER_BASE_URL)
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(testUsername, testUserPassword))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(emptyCustomerDTO));
@@ -177,6 +191,7 @@ class CustomerControllerTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .post(CUSTOMER_CONTROLLER_BASE_URL)
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(testUsername, testUserPassword))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(testCustomerDTO));
@@ -213,6 +228,7 @@ class CustomerControllerTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .put(CUSTOMER_CONTROLLER_BASE_URL + existingCustomerDTO.getId())
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(testUsername, testUserPassword))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(updatedCustomerDTOData));
@@ -242,6 +258,7 @@ class CustomerControllerTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .delete(CUSTOMER_CONTROLLER_BASE_URL + customerDTOToDelete.getId())
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(testUsername, testUserPassword))
                 .accept(MediaType.APPLICATION_JSON);
 
         this.mockMvc
@@ -269,6 +286,7 @@ class CustomerControllerTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .delete(CUSTOMER_CONTROLLER_BASE_URL + nonExistingId)
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(testUsername, testUserPassword))
                 .accept(MediaType.APPLICATION_JSON);
 
         this.mockMvc

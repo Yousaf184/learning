@@ -18,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Import;
@@ -49,6 +50,11 @@ class BeerControllerIT {
 
     private static final String BEER_CONTROLLER_BASE_URL = "/api/v1/beer/";
 
+    @Value("${spring.security.user.name}")
+    private String testUsername;
+    @Value("${spring.security.user.password}")
+    private String testUserPassword;
+
     @Autowired
     public BeerControllerIT(
             BeerController beerController,
@@ -67,7 +73,9 @@ class BeerControllerIT {
     @Test
     @DisplayName("Get all beers")
     void getAllBeers() {
-        ResponseEntity<String> response = this.testRestTemplate.getForEntity(BEER_CONTROLLER_BASE_URL, String.class);
+        ResponseEntity<String> response = this.testRestTemplate
+                .withBasicAuth(testUsername, testUserPassword)
+                .getForEntity(BEER_CONTROLLER_BASE_URL, String.class);
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
 
@@ -93,7 +101,9 @@ class BeerControllerIT {
         String requestUrl = UriComponentsBuilder.fromUriString(BEER_CONTROLLER_BASE_URL)
                 .queryParam("beerName", beerNameToSearch)
                 .toUriString();
-        ResponseEntity<String> response = this.testRestTemplate.getForEntity(requestUrl, String.class);
+        ResponseEntity<String> response = this.testRestTemplate
+                .withBasicAuth(testUsername, testUserPassword)
+                .getForEntity(requestUrl, String.class);
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
 
@@ -115,7 +125,9 @@ class BeerControllerIT {
                 .queryParam("beerStyle", beerStyleToSearch)
                 .queryParam("pageSize", REQUESTED_PAGE_SIZE)
                 .toUriString();
-        ResponseEntity<String> response = this.testRestTemplate.getForEntity(requestUrl, String.class);
+        ResponseEntity<String> response = this.testRestTemplate
+                .withBasicAuth(testUsername, testUserPassword)
+                .getForEntity(requestUrl, String.class);
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
 
@@ -136,7 +148,9 @@ class BeerControllerIT {
                 .queryParam("beerStyle", beerStyleToSearch)
                 .queryParam("beerName", beerNameToSearch)
                 .toUriString();
-        ResponseEntity<String> response = this.testRestTemplate.getForEntity(requestUrl, String.class);
+        ResponseEntity<String> response = this.testRestTemplate
+                .withBasicAuth(testUsername, testUserPassword)
+                .getForEntity(requestUrl, String.class);
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
 
@@ -152,7 +166,9 @@ class BeerControllerIT {
         String requestUrl = UriComponentsBuilder.fromUriString(BEER_CONTROLLER_BASE_URL)
                 .queryParam("pageSize", 100)
                 .toUriString();
-        ResponseEntity<String> response = this.testRestTemplate.getForEntity(requestUrl, String.class);
+        ResponseEntity<String> response = this.testRestTemplate
+                .withBasicAuth(testUsername, testUserPassword)
+                .getForEntity(requestUrl, String.class);
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
 
@@ -170,7 +186,9 @@ class BeerControllerIT {
                 .queryParam("sortByField", SORT_FIELD)
                 .queryParam("sortOrder", SORT_ORDER)
                 .toUriString();
-        ResponseEntity<String> response = this.testRestTemplate.getForEntity(requestUrl, String.class);
+        ResponseEntity<String> response = this.testRestTemplate
+                .withBasicAuth(testUsername, testUserPassword)
+                .getForEntity(requestUrl, String.class);
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
 
@@ -191,7 +209,9 @@ class BeerControllerIT {
                 .queryParam("sortByField", SORT_FIELD)
                 .queryParam("sortOrder", SORT_ORDER)
                 .toUriString();
-        ResponseEntity<String> response = this.testRestTemplate.getForEntity(requestUrl, String.class);
+        ResponseEntity<String> response = this.testRestTemplate
+                .withBasicAuth(testUsername, testUserPassword)
+                .getForEntity(requestUrl, String.class);
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
 
@@ -208,11 +228,15 @@ class BeerControllerIT {
         Beer existingBeer = this.beerRepository.findAll().getFirst();
 
         String requestUrl = BEER_CONTROLLER_BASE_URL + existingBeer.getId();
-        ResponseEntity<String> response = this.testRestTemplate.getForEntity(requestUrl, String.class);
+        ResponseEntity<String> response = this.testRestTemplate
+                .withBasicAuth(testUsername, testUserPassword)
+                .getForEntity(requestUrl, String.class);
 
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
 
         String expectedJson = this.objectMapper.writeValueAsString(existingBeer);
+        System.out.println(expectedJson);
+        System.out.println(response.getBody());
         JSONAssert.assertEquals(expectedJson, response.getBody(), false);
     }
 
@@ -223,7 +247,10 @@ class BeerControllerIT {
         Assertions.assertThrows(NotFoundException.class, () -> this.beerController.getBeerById(nonExistingBeerId));
 
         String requestUrl = BEER_CONTROLLER_BASE_URL + UUID.randomUUID();
-        ResponseEntity<String> response = this.testRestTemplate.getForEntity(requestUrl, String.class);
+        ResponseEntity<String> response = this.testRestTemplate
+                .withBasicAuth(testUsername, testUserPassword)
+                .getForEntity(requestUrl, String.class);
+
         Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         Assertions.assertNull(response.getBody());
     }

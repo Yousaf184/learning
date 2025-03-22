@@ -1,6 +1,7 @@
 package com.ysf.spring6.rest.mvc.dto;
 
 import com.ysf.spring6.rest.mvc.constants.BeerStyle;
+import com.ysf.spring6.rest.mvc.entity.Category;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -10,6 +11,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -40,4 +42,6 @@ public class BeerDTO {
 
     private LocalDateTime createdDate;
     private LocalDateTime updateDate;
+
+    private Set<Category> categories;
 }

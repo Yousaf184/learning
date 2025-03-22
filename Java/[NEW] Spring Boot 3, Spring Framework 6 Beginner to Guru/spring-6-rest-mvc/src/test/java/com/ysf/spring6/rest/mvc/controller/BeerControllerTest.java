@@ -1,6 +1,7 @@
 package com.ysf.spring6.rest.mvc.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ysf.spring6.rest.mvc.config.SecurityConfig;
 import com.ysf.spring6.rest.mvc.constants.BeerStyle;
 import com.ysf.spring6.rest.mvc.dto.BeerDTO;
 import com.ysf.spring6.rest.mvc.service.IBeerService;
@@ -12,10 +13,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -33,6 +37,7 @@ import java.util.UUID;
 
 
 @WebMvcTest(BeerController.class)
+@Import(SecurityConfig.class)
 @ActiveProfiles("test")
 class BeerControllerTest {
 
@@ -58,6 +63,11 @@ class BeerControllerTest {
     private List<BeerDTO> testBeerList;
 
     private static final String BEER_CONTROLLER_BASE_URL = "/api/v1/beer/";
+
+    @Value("${spring.security.user.name}")
+    private String testUsername;
+    @Value("${spring.security.user.password}")
+    private String testUserPassword;
 
     @BeforeEach
     void setUp() {
@@ -86,6 +96,7 @@ class BeerControllerTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .get(BEER_CONTROLLER_BASE_URL)
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(testUsername, testUserPassword))
                 .accept(MediaType.APPLICATION_JSON);
 
         final int TEST_BEER_LIST_SIZE = 1;
@@ -118,6 +129,7 @@ class BeerControllerTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .get(requestUrl)
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(testUsername, testUserPassword))
                 .accept(MediaType.APPLICATION_JSON);
 
         this.mockMvc
@@ -147,6 +159,7 @@ class BeerControllerTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .get(requestUrl)
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(testUsername, testUserPassword))
                 .accept(MediaType.APPLICATION_JSON);
 
         this.mockMvc
@@ -178,6 +191,7 @@ class BeerControllerTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .get(requestUrl)
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(testUsername, testUserPassword))
                 .accept(MediaType.APPLICATION_JSON);
 
         this.mockMvc
@@ -206,6 +220,7 @@ class BeerControllerTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .get(BEER_CONTROLLER_BASE_URL + beerDTO.getId().toString())
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(testUsername, testUserPassword))
                 .accept(MediaType.APPLICATION_JSON);
 
         this.mockMvc
@@ -240,6 +255,7 @@ class BeerControllerTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .post(BEER_CONTROLLER_BASE_URL)
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(testUsername, testUserPassword))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(beerDTOToBeCreated));
@@ -272,6 +288,7 @@ class BeerControllerTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .post(BEER_CONTROLLER_BASE_URL)
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(testUsername, testUserPassword))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(emptyBeerDTO));
@@ -306,6 +323,7 @@ class BeerControllerTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .post(BEER_CONTROLLER_BASE_URL)
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(testUsername, testUserPassword))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(testBeerDTO));
@@ -346,6 +364,7 @@ class BeerControllerTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .put(BEER_CONTROLLER_BASE_URL + existingBeerDTO.getId())
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(testUsername, testUserPassword))
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(updatedBeerDTOData));
@@ -377,6 +396,7 @@ class BeerControllerTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .delete(BEER_CONTROLLER_BASE_URL + beerDTOToDelete.getId())
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(testUsername, testUserPassword))
                 .accept(MediaType.APPLICATION_JSON);
 
         this.mockMvc
@@ -404,6 +424,7 @@ class BeerControllerTest {
 
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .delete(BEER_CONTROLLER_BASE_URL + nonExistingId)
+                .with(SecurityMockMvcRequestPostProcessors.httpBasic(testUsername, testUserPassword))
                 .accept(MediaType.APPLICATION_JSON);
 
         this.mockMvc
