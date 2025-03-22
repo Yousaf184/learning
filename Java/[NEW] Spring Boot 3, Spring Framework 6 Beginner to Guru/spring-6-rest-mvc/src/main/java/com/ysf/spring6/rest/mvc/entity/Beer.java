@@ -11,6 +11,8 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -62,4 +64,41 @@ public class Beer {
 
     @Column(name = "updated_date")
     private LocalDateTime updateDate;
+
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @JoinTable(
+            name = "beer_category",
+            joinColumns = @JoinColumn(name = "beer_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private Set<Category> categories;
+
+    public void addCategory(Category category) {
+        if (this.categories == null) {
+            this.categories = new HashSet<>();
+        }
+        this.categories.add(category);
+        category.addBeer(this);
+    }
+
+    public void removeCategory(Category category) {
+        if (this.categories == null) {
+            return;
+        }
+        this.categories.remove(category);
+        category.removeBeer(this);
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || this.getClass() != o.getClass()) return false;
+        Beer otherBeer = (Beer) o;
+        return this.id != null && this.id.equals(otherBeer.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this.getClass().hashCode();
+    }
 }
