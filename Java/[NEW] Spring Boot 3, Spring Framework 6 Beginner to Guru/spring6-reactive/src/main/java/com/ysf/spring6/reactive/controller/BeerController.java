@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -24,7 +25,9 @@ public class BeerController {
 
     @GetMapping("/{beerId}")
     public Mono<BeerDTO> getBeerById(@PathVariable("beerId") Integer beerId) {
-        return this.beerService.getBeerById(beerId);
+        return this.beerService
+                .getBeerById(beerId)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 
     @PostMapping(value = {"", "/"})
@@ -39,7 +42,9 @@ public class BeerController {
             @PathVariable("beerId") Integer beerId,
             @RequestBody BeerDTO updateBeerDTO
     ) {
-        return this.beerService.updateBeerById(beerId, updateBeerDTO);
+        return this.beerService
+                .updateBeerById(beerId, updateBeerDTO)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 
     @DeleteMapping("/{beerId}")
