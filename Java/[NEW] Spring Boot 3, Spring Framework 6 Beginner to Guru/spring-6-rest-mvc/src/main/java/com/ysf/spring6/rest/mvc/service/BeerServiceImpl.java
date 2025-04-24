@@ -6,7 +6,9 @@ import com.ysf.spring6.rest.mvc.entity.Beer;
 import com.ysf.spring6.rest.mvc.mapper.BeerMapper;
 import com.ysf.spring6.rest.mvc.repository.BeerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +28,7 @@ public class BeerServiceImpl implements IBeerService {
 
     private static final int DEFAULT_MAX_PAGE_SIZE = 50;
 
+    @Cacheable(cacheNames = "beerListCache")
     @Override
     public Page<BeerDTO> listBeers(String beerName, BeerStyle beerStyle, Map<String, Object> paginationAndSortParams) {
         Page<Beer> beersPage;
@@ -102,6 +105,10 @@ public class BeerServiceImpl implements IBeerService {
         return this.beerMapper.beerToBeerDTO(savedBeer);
     }
 
+    @Caching(evict = {
+        @CacheEvict(cacheNames = "beerListCache", allEntries = true),
+        @CacheEvict(cacheNames = "beerByIdCache", key = "#beerId")
+    })
     @Override
     public Optional<BeerDTO> updateBeerById(UUID beerId, BeerDTO beerDTO) {
         Optional<Beer> beerOptional = this.beerRepository.findById(beerId);
@@ -140,6 +147,10 @@ public class BeerServiceImpl implements IBeerService {
         return Optional.of(updatedBeerDTO);
     }
 
+    @Caching(evict = {
+        @CacheEvict(cacheNames = "beerListCache", allEntries = true),
+        @CacheEvict(cacheNames = "beerByIdCache", key = "#beerId")
+    })
     @Override
     public Optional<BeerDTO> deleteBeerById(UUID beerId) {
         Optional<Beer> beerOptional = this.beerRepository.findById(beerId);
@@ -147,6 +158,11 @@ public class BeerServiceImpl implements IBeerService {
         if (beerOptional.isEmpty()) {
             return Optional.empty();
         }
+
+        // remove categories linked with the beer being deleted
+        beerOptional.ifPresent(beerToDelete -> {
+            beerToDelete.getCategories().forEach(beerToDelete::removeCategory);
+        });
 
         this.beerRepository.deleteById(beerId);
 
