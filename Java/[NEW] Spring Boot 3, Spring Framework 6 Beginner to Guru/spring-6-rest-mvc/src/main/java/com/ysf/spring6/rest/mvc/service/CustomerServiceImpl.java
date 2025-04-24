@@ -5,6 +5,7 @@ import com.ysf.spring6.rest.mvc.entity.Customer;
 import com.ysf.spring6.rest.mvc.mapper.CustomerMapper;
 import com.ysf.spring6.rest.mvc.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -28,6 +29,7 @@ public class CustomerServiceImpl implements ICustomerService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(cacheNames = "customerByIdCache", key = "#customerId")
     @Override
     public Optional<CustomerDTO> getCustomerById(UUID customerId) {
         Optional<Customer> customerOptional = this.customerRepository.findById(customerId);

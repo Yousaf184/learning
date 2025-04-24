@@ -6,6 +6,7 @@ import com.ysf.spring6.rest.mvc.entity.Beer;
 import com.ysf.spring6.rest.mvc.mapper.BeerMapper;
 import com.ysf.spring6.rest.mvc.repository.BeerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -71,6 +72,7 @@ public class BeerServiceImpl implements IBeerService {
         return this.beerRepository.findByBeerNameLikeIgnoreCaseAndBeerStyle("%" + beerName + "%", beerStyle, pageAndSortConfig);
     }
 
+    @Cacheable(cacheNames = "beerByIdCache", key = "#id")
     @Override
     public Optional<BeerDTO> getBeerById(UUID id) {
         Optional<Beer> beerOptional = this.beerRepository.findById(id);
