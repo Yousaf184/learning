@@ -3,6 +3,7 @@ package com.ysf.spring6.rest.mvc.service;
 import com.ysf.spring6.rest.mvc.constants.BeerStyle;
 import com.ysf.spring6.rest.mvc.dto.BeerDTO;
 import com.ysf.spring6.rest.mvc.entity.Beer;
+import com.ysf.spring6.rest.mvc.event.BeerEventPublisher;
 import com.ysf.spring6.rest.mvc.mapper.BeerMapper;
 import com.ysf.spring6.rest.mvc.repository.BeerRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -25,6 +27,7 @@ public class BeerServiceImpl implements IBeerService {
 
     private final BeerRepository beerRepository;
     private final BeerMapper beerMapper;
+    private final BeerEventPublisher beerEventPublisher;
 
     private static final int DEFAULT_MAX_PAGE_SIZE = 50;
 
@@ -101,6 +104,8 @@ public class BeerServiceImpl implements IBeerService {
 
         Beer beerToSave = this.beerMapper.beerDTOToBeer(beerDTO);
         Beer savedBeer = this.beerRepository.save(beerToSave);
+
+        this.beerEventPublisher.publishBeerCreatedEvent(savedBeer, SecurityContextHolder.getContext().getAuthentication());
 
         return this.beerMapper.beerToBeerDTO(savedBeer);
     }

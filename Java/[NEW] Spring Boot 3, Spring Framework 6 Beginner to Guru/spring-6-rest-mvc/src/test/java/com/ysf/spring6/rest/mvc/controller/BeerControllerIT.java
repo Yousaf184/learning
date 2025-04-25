@@ -8,6 +8,7 @@ import com.ysf.spring6.rest.mvc.bootstrap.BootstrapTestData;
 import com.ysf.spring6.rest.mvc.constants.BeerStyle;
 import com.ysf.spring6.rest.mvc.dto.BeerDTO;
 import com.ysf.spring6.rest.mvc.entity.Beer;
+import com.ysf.spring6.rest.mvc.event.BeerCreatedEvent;
 import com.ysf.spring6.rest.mvc.exceptions.NotFoundException;
 import com.ysf.spring6.rest.mvc.mapper.BeerMapper;
 import com.ysf.spring6.rest.mvc.repository.BeerRepository;
@@ -26,6 +27,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
@@ -35,6 +38,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@RecordApplicationEvents
 @ActiveProfiles("test")
 @Import(BootstrapTestData.class)
 @Transactional
@@ -47,6 +51,8 @@ class BeerControllerIT {
 
     private final TestRestTemplate testRestTemplate;
     private final ObjectMapper objectMapper;
+    @Autowired
+    private ApplicationEvents applicationEvents;
 
     private static final String BEER_CONTROLLER_BASE_URL = "/api/v1/beer/";
 
@@ -274,6 +280,10 @@ class BeerControllerIT {
         Assertions.assertNotNull(savedBeer.getId());
         Assertions.assertNotNull(savedBeer.getCreatedDate());
         Assertions.assertNotNull(savedBeer.getUpdateDate());
+
+        // verify that BeerCreatedEvent was published
+        long eventCount = this.applicationEvents.stream(BeerCreatedEvent.class).count();
+        Assertions.assertEquals(1, eventCount);
     }
 
     @Test
