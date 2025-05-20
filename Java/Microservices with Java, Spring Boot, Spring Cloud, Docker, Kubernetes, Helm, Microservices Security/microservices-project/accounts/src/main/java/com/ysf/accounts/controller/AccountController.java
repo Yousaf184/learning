@@ -1,4 +1,4 @@
-package com.ysf.accounts;
+package com.ysf.accounts.controller;
 
 import com.ysf.accounts.dto.AccountDto;
 import com.ysf.accounts.dto.CustomerDto;
@@ -25,6 +25,6 @@ public class AccountController {
         AccountDto createdAccount = this.accountService.createNewAccount(customerDetails);
 
         String successResponseMsg = "Account created successfully";
-        return ResponseUtils.getSuccessResponse(createdAccount, successResponseMsg);
+        return ResponseUtils.getCreatedSuccessResponse(createdAccount, successResponseMsg);
     }
 }

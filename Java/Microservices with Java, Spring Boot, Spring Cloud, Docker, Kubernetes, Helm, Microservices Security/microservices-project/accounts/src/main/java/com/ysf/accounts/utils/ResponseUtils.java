@@ -16,6 +16,10 @@ public class ResponseUtils {
         return ResponseUtils.createGeneralSuccessResponse(null, responseMsg);
     }
 
+    public static ResponseEntity<Map<String, Object>> getCreatedSuccessResponse(Object responseBody, String responseMsg) {
+        return ResponseUtils.createResponse(HttpStatus.CREATED, responseBody, responseMsg, null);
+    }
+
     public static ResponseEntity<Map<String, Object>> getErrorResponse(HttpStatus errorStatusCode, Object responseBody, String errorMsg) {
         return ResponseUtils.createGeneralErrorResponse(errorStatusCode, responseBody, errorMsg);
     }
