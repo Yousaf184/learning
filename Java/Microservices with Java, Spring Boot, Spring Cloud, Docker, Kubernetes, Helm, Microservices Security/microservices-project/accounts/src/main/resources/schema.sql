@@ -4,9 +4,9 @@ CREATE TABLE IF NOT EXISTS `customer` (
   `email`           VARCHAR(100) NOT NULL,
   `mobile_number`   VARCHAR(20)  NOT NULL,
   `created_at`      DATE         NOT NULL,
-  `created_by`      VARCHAR(20)  NOT NULL,
-  `last_updated_at` DATE
-  `last_updated_by` VARCHAR(20)
+  `created_by`      VARCHAR(50)  NOT NULL,
+  `last_updated_at` DATE,
+  `last_updated_by` VARCHAR(50)
 );
 
 CREATE TABLE IF NOT EXISTS `account` (
@@ -15,9 +15,9 @@ CREATE TABLE IF NOT EXISTS `account` (
   `account_type`    VARCHAR(100) NOT NULL,
   `branch_address`  VARCHAR(200) NOT NULL,
   `created_at`      DATE         NOT NULL,
-  `created_by`      VARCHAR(20)  NOT NULL,
+  `created_by`      VARCHAR(50)  NOT NULL,
   `last_updated_at` DATE,
-  `last_updated_by` VARCHAR(20),
+  `last_updated_by` VARCHAR(50),
 
   CONSTRAINT FK_CUSTOMER_ID FOREIGN KEY (customer_id) REFERENCES customer(id)
 );
