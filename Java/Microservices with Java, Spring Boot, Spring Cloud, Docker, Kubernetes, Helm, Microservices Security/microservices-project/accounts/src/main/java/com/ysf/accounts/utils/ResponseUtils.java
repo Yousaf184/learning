@@ -8,12 +8,18 @@ import java.util.Map;
 
 public class ResponseUtils {
 
+    private enum ResponseStatus { SUCCESS, ERROR }
+
     public static ResponseEntity<Map<String, Object>> getSuccessResponse(Object responseBody, String responseMsg) {
         return ResponseUtils.createGeneralSuccessResponse(responseBody, responseMsg);
     }
 
     public static ResponseEntity<Map<String, Object>> getSuccessResponse(String responseMsg) {
         return ResponseUtils.createGeneralSuccessResponse(null, responseMsg);
+    }
+
+    public static ResponseEntity<Map<String, Object>> getSuccessResponse(Object responseBody) {
+        return ResponseUtils.createGeneralSuccessResponse(responseBody, null);
     }
 
     public static ResponseEntity<Map<String, Object>> getCreatedSuccessResponse(Object responseBody, String responseMsg) {
@@ -44,23 +50,23 @@ public class ResponseUtils {
         String successResponseMsg,
         String errorResponseMsg
     ) {
-        if (successResponseMsg == null && errorResponseMsg == null) {
-            String errorMsg = "Both success and error response message cannot be null at the same time";
-            throw new IllegalArgumentException(errorMsg);
-        }
-
-        if (successResponseMsg != null && errorResponseMsg != null) {
-            String errorMsg = "Both success and error response message cannot be non-null at the same time";
-            throw new IllegalArgumentException(errorMsg);
-        }
-
         Map<String, Object> responseMap = new HashMap<>();
 
-        String status = successResponseMsg != null ? "Success" : "Error";
-        String message = successResponseMsg != null ? successResponseMsg : errorResponseMsg;
+        ResponseStatus status = errorResponseMsg != null
+                ? ResponseStatus.ERROR
+                : ResponseStatus.SUCCESS;
+
+        String message = null;
+        if (errorResponseMsg != null) {
+            message = errorResponseMsg;
+        } else if (successResponseMsg != null) {
+            message = successResponseMsg;
+        }
 
         responseMap.put("status", status);
-        responseMap.put("message", message);
+        if (message != null) {
+            responseMap.put("message", message);
+        }
         if (responseBody != null) {
             responseMap.put("data", responseBody);
         }

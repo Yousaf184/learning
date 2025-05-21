@@ -30,4 +30,10 @@ public class CustomerServiceImpl implements ICustomerService {
 
         return this.customerMapper.toCustomerDto(savedCustomer);
     }
+
+    @Override
+    public Optional<CustomerDto> getCustomerByMobileNumber(String mobileNumber) {
+        Optional<Customer> customerOptional = this.customerRepository.findByMobileNumber(mobileNumber);
+        return customerOptional.map(this.customerMapper::toCustomerDto);
+    }
 }
