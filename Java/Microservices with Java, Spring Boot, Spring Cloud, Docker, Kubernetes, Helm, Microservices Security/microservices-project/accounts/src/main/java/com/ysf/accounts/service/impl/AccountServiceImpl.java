@@ -4,6 +4,7 @@ import com.ysf.accounts.dto.AccountDetailsDto;
 import com.ysf.accounts.dto.AccountDto;
 import com.ysf.accounts.dto.CustomerDto;
 import com.ysf.accounts.entity.Account;
+import com.ysf.accounts.exception.BadUserRequestException;
 import com.ysf.accounts.exception.NotFoundException;
 import com.ysf.accounts.mapper.AccountMapper;
 import com.ysf.accounts.repository.AccountRepository;
@@ -11,6 +12,7 @@ import com.ysf.accounts.service.IAccountService;
 import com.ysf.accounts.service.ICustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 import java.util.Random;
@@ -43,22 +45,80 @@ public class AccountServiceImpl implements IAccountService {
 
     @Override
     public AccountDetailsDto getAccountDetails(String mobileNumber) {
-        Optional<CustomerDto> customerDtoOptional = this.customerService.getCustomerByMobileNumber(mobileNumber);
-        CustomerDto customerDto = customerDtoOptional.orElseThrow(() -> {
-            String errorMsg = "Customer with the given mobile number not found";
-            return new NotFoundException(errorMsg);
-        });
+        CustomerDto customerDto = this.customerService.getCustomerByMobileNumber(mobileNumber);
 
-        Optional<Account> accountOptional = this.accountRepository.findByCustomerId(customerDto.getId());
-        Account account = accountOptional.orElseThrow(() -> {
-            String errorMsg = "Account with the given mobile number not found";
-            return new NotFoundException(errorMsg);
-        });
+        Account account = this.fetchAccountByCustomerId(customerDto.getId());
         AccountDto accountDto = this.accountMapper.toAccountDto(account);
 
         return AccountDetailsDto.builder()
                 .customerDetails(customerDto)
                 .accountDetails(accountDto)
                 .build();
+    }
+
+    @Override
+    public void updateAccountDetails(String mobileNumber, AccountDetailsDto accountDetails) {
+        boolean isCustomerDetailsUpdated = false;
+        boolean isAccountDetailsUpdated = false;
+
+        String updatedMobileNumber = null;
+
+        if (accountDetails.getCustomerDetails() != null) {
+            CustomerDto updatedCustomerDetails = accountDetails.getCustomerDetails();
+            this.customerService.updateCustomer(mobileNumber, updatedCustomerDetails);
+
+            isCustomerDetailsUpdated = true;
+
+            if (updatedCustomerDetails.getMobileNumber() != null) {
+                updatedMobileNumber = updatedCustomerDetails.getMobileNumber();
+            }
+        }
+
+        if (accountDetails.getAccountDetails() != null) {
+            if (updatedMobileNumber != null) {
+                mobileNumber = updatedMobileNumber;
+            }
+            CustomerDto customerDto = this.customerService.getCustomerByMobileNumber(mobileNumber);
+            this.updateAccount(customerDto.getId(), accountDetails.getAccountDetails());
+            isAccountDetailsUpdated = true;
+        }
+
+        if (!isCustomerDetailsUpdated && !isAccountDetailsUpdated) {
+            String errorMsg = "Update Failed. Nothing to update in the request";
+            throw new BadUserRequestException(errorMsg);
+        }
+    }
+
+    /**************************************** PRIVATE METHODS ****************************************/
+
+    private Account fetchAccountByCustomerId(Long customerId) {
+        Optional<Account> accountOptional = this.accountRepository.findByCustomerId(customerId);
+
+        return accountOptional.orElseThrow(() -> {
+            String errorMsg = "Account with the given mobile number not found";
+            return new NotFoundException(errorMsg);
+        });
+    }
+
+    private void updateAccount(Long customerId, AccountDto updatedAccountInfo) {
+        Account accountToBeUpdated = this.fetchAccountByCustomerId(customerId);
+        accountToBeUpdated = populateAccountFieldsToBeUpdated(accountToBeUpdated, updatedAccountInfo);
+
+        this.accountRepository.save(accountToBeUpdated);
+    }
+
+    private static Account populateAccountFieldsToBeUpdated(Account accountToBeUpdated, AccountDto updatedAccountInfo) {
+        if (updatedAccountInfo == null) {
+            return accountToBeUpdated;
+        }
+
+        if (StringUtils.hasText(updatedAccountInfo.getAccountType())) {
+            accountToBeUpdated.setAccountType(updatedAccountInfo.getAccountType());
+        }
+        if (StringUtils.hasText(updatedAccountInfo.getBranchAddress())) {
+            accountToBeUpdated.setBranchAddress(updatedAccountInfo.getBranchAddress());
+        }
+
+        return accountToBeUpdated;
     }
 }

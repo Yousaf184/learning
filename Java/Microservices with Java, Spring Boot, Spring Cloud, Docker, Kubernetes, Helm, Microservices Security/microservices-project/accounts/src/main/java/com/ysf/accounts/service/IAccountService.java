@@ -9,4 +9,6 @@ public interface IAccountService {
     AccountDto createNewAccount(CustomerDto customerDto);
 
     AccountDetailsDto getAccountDetails(String mobileNumber);
+
+    void updateAccountDetails(String mobileNumber, AccountDetailsDto accountDetails);
 }

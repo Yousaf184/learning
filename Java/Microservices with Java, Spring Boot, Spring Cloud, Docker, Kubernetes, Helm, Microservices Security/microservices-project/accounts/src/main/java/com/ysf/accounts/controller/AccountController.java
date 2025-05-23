@@ -31,4 +31,15 @@ public class AccountController {
         AccountDetailsDto accountDetails = this.accountService.getAccountDetails(mobileNumber);
         return ResponseUtils.getSuccessResponse(accountDetails);
     }
+
+    @PutMapping("/{mobileNumber}")
+    public ResponseEntity<Map<String, Object>> updateAccountDetails(
+        @PathVariable("mobileNumber") String mobileNumber,
+        @RequestBody AccountDetailsDto accountDetailsDto
+    ) {
+        this.accountService.updateAccountDetails(mobileNumber, accountDetailsDto);
+
+        String responseMsg = "Details updated successfully";
+        return ResponseUtils.getSuccessResponse(responseMsg);
+    }
 }

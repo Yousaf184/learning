@@ -11,8 +11,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(CustomerAlreadyExistsException.class)
-    public ResponseEntity<Map<String, Object>> handleCustomerAlreadyExistsException(CustomerAlreadyExistsException ex) {
+    @ExceptionHandler(value = { CustomerAlreadyExistsException.class, BadUserRequestException.class })
+    public ResponseEntity<Map<String, Object>> handleCustomerAlreadyExistsException(RuntimeException ex) {
         return ResponseUtils.getErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
@@ -23,6 +23,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneralException(Exception ex) {
+        ex.printStackTrace();
         return ResponseUtils.getErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 }
