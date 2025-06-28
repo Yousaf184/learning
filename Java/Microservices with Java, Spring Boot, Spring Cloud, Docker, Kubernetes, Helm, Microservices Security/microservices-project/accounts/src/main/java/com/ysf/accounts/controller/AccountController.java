@@ -5,6 +5,7 @@ import com.ysf.accounts.dto.AccountDto;
 import com.ysf.accounts.dto.CustomerDto;
 import com.ysf.accounts.service.IAccountService;
 import com.ysf.accounts.utils.ResponseUtils;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class AccountController {
     private final IAccountService accountService;
 
     @PostMapping({"", "/"})
-    public ResponseEntity<Map<String, Object>> createNewAccount(@RequestBody CustomerDto customerDetails) {
+    public ResponseEntity<Map<String, Object>> createNewAccount(@Valid @RequestBody CustomerDto customerDetails) {
         AccountDto createdAccount = this.accountService.createNewAccount(customerDetails);
 
         String successResponseMsg = "Account created successfully";

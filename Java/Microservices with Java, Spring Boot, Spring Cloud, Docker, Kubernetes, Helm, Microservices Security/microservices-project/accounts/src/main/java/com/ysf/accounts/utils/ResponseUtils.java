@@ -26,8 +26,8 @@ public class ResponseUtils {
         return ResponseUtils.createResponse(HttpStatus.CREATED, responseBody, responseMsg, null);
     }
 
-    public static ResponseEntity<Map<String, Object>> getErrorResponse(HttpStatus errorStatusCode, Object responseBody, String errorMsg) {
-        return ResponseUtils.createGeneralErrorResponse(errorStatusCode, responseBody, errorMsg);
+    public static ResponseEntity<Map<String, Object>> getErrorResponse(HttpStatus errorStatusCode, Object responseBody) {
+        return ResponseUtils.createGeneralErrorResponse(errorStatusCode, responseBody, null);
     }
 
     public static ResponseEntity<Map<String, Object>> getErrorResponse(HttpStatus errorStatusCode, String errorMsg) {
@@ -52,7 +52,7 @@ public class ResponseUtils {
     ) {
         Map<String, Object> responseMap = new HashMap<>();
 
-        ResponseStatus status = errorResponseMsg != null
+        ResponseStatus status = statusCode.isError()
                 ? ResponseStatus.ERROR
                 : ResponseStatus.SUCCESS;
 
@@ -68,7 +68,7 @@ public class ResponseUtils {
             responseMap.put("message", message);
         }
         if (responseBody != null) {
-            responseMap.put("data", responseBody);
+            responseMap.put((statusCode.isError() ? "errors" : "data"), responseBody);
         }
 
         return ResponseEntity.status(statusCode).body(responseMap);
