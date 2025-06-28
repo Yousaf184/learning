@@ -47,6 +47,11 @@ public class CustomerServiceImpl implements ICustomerService {
         this.customerRepository.save(customerToUpdate);
     }
 
+    @Override
+    public void deleteCustomerById(Long customerId) {
+        this.customerRepository.deleteById(customerId);
+    }
+
     /**************************************** PRIVATE METHODS ****************************************/
 
     private Customer fetchCustomerByMobileNumber(String mobileNumber) {

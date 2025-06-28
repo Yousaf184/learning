@@ -11,4 +11,6 @@ public interface IAccountService {
     AccountDetailsDto getAccountDetails(String mobileNumber);
 
     void updateAccountDetails(String mobileNumber, AccountDetailsDto accountDetails);
+
+    void deleteAccountDetails(String mobileNumber);
 }

@@ -26,8 +26,8 @@ public class AccountController {
         return ResponseUtils.getCreatedSuccessResponse(createdAccount, successResponseMsg);
     }
 
-    @GetMapping
-    public ResponseEntity<Map<String, Object>> getAccountDetails(@RequestParam("mobileNumber") String mobileNumber) {
+    @GetMapping("/{mobileNumber}")
+    public ResponseEntity<Map<String, Object>> getAccountDetails(@PathVariable("mobileNumber") String mobileNumber) {
         AccountDetailsDto accountDetails = this.accountService.getAccountDetails(mobileNumber);
         return ResponseUtils.getSuccessResponse(accountDetails);
     }
@@ -42,4 +42,13 @@ public class AccountController {
         String responseMsg = "Details updated successfully";
         return ResponseUtils.getSuccessResponse(responseMsg);
     }
+
+    @DeleteMapping("/{mobileNumber}")
+    public ResponseEntity<Map<String, Object>> deleteAccountDetails(@PathVariable("mobileNumber") String mobileNumber) {
+        this.accountService.deleteAccountDetails(mobileNumber);
+
+        String responseMsg = "Account deleted successfully";
+        return ResponseUtils.getSuccessResponse(responseMsg);
+    }
 }
+

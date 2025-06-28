@@ -12,7 +12,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = { CustomerAlreadyExistsException.class, BadUserRequestException.class })
-    public ResponseEntity<Map<String, Object>> handleCustomerAlreadyExistsException(RuntimeException ex) {
+    public ResponseEntity<Map<String, Object>> handleBadRequestException(RuntimeException ex) {
         return ResponseUtils.getErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 

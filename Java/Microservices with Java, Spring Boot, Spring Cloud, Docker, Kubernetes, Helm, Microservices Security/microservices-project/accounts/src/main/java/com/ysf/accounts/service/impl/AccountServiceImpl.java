@@ -89,6 +89,13 @@ public class AccountServiceImpl implements IAccountService {
         }
     }
 
+    @Override
+    public void deleteAccountDetails(String mobileNumber) {
+        CustomerDto customerDto = this.customerService.getCustomerByMobileNumber(mobileNumber);
+        this.accountRepository.deleteByCustomerId(customerDto.getId());
+        this.customerService.deleteCustomerById(customerDto.getId());
+    }
+
     /**************************************** PRIVATE METHODS ****************************************/
 
     private Account fetchAccountByCustomerId(Long customerId) {
