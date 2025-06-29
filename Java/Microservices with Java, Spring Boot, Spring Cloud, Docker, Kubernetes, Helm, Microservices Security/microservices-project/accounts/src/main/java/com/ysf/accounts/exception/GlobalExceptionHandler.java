@@ -1,5 +1,6 @@
 package com.ysf.accounts.exception;
 
+import com.ysf.accounts.dto.ResponseDto;
 import com.ysf.accounts.utils.ResponseUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,17 +18,17 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = { CustomerAlreadyExistsException.class, BadUserRequestException.class })
-    public ResponseEntity<Map<String, Object>> handleBadRequestException(RuntimeException ex) {
+    public ResponseEntity<ResponseDto> handleBadRequestException(RuntimeException ex) {
         return ResponseUtils.getErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleNotFoundException(NotFoundException ex) {
+    public ResponseEntity<ResponseDto> handleNotFoundException(NotFoundException ex) {
         return ResponseUtils.getErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ResponseEntity<Map<String, Object>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+    protected ResponseEntity<ResponseDto> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
 
         List<ObjectError> allErrors = ex.getAllErrors();
@@ -37,7 +38,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneralException(Exception ex) {
+    public ResponseEntity<ResponseDto> handleGeneralException(Exception ex) {
         ex.printStackTrace();
         return ResponseUtils.getErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
