@@ -13,6 +13,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>accounts</name>
     <description>Microservice for accounts</description>
+    <packaging>jar</packaging>
     <url/>
     <licenses>
         <license/>
@@ -117,6 +118,17 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <!-- google jib maven plugin for generating docker images -->
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>3.4.6</version>
+                <configuration>
+                    <to>
+                        <image>ysfkhan/eazybank-${project.artifactId}-ms:v1</image>
+                    </to>
                 </configuration>
             </plugin>
         </plugins>

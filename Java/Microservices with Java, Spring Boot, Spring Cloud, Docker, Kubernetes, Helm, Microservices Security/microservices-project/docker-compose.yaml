@@ -1,0 +1,39 @@
+name: EazyBank microservices
+services:
+  accounts-service:
+    image: ysfkhan/eazybank-accounts-ms:v1
+    container_name: accounts-service
+    ports:
+      - "8080:8080"
+    networks:
+      - eazybank-backend
+    deploy:
+      resources:
+        limits:
+          memory: 500mb
+  cards-service:
+    image: ysfkhan/eazybank-cards-ms:v1
+    container_name: cards-service
+    ports:
+      - "9000:9000"
+    networks:
+      - eazybank-backend
+    deploy:
+      resources:
+        limits:
+          memory: 500mb
+  loans-service:
+    image: ysfkhan/eazybank-loans-ms:v1
+    container_name: loans-service
+    ports:
+      - "8090:8090"
+    networks:
+      - eazybank-backend
+    deploy:
+      resources:
+        limits:
+          memory: 500mb
+networks:
+  eazybank-backend:
+    driver: bridge
+
