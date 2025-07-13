@@ -1,11 +1,14 @@
 package com.ysf.cards;
 
+import com.ysf.cards.dto.AccountContactInfoDto;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
 @EnableJpaAuditing(auditorAwareRef = "entityAuditorAwareImpl")
+@EnableConfigurationProperties({ AccountContactInfoDto.class })
 public class CardsApplication {
 
 	public static void main(String[] args) {

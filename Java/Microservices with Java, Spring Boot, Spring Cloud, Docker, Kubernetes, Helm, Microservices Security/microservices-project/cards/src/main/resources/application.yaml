@@ -2,7 +2,7 @@ server:
   port: 9000
 spring:
   application:
-    name: cards-microservice
+    name: cards
   datasource:
     driver-class-name: org.h2.Driver
     url: jdbc:h2:mem:cards_db
@@ -20,3 +20,5 @@ spring:
       hibernate:
         highlight_sql: true
         format_sql: true
+  config:
+    import: "configserver:http://localhost:8071/"

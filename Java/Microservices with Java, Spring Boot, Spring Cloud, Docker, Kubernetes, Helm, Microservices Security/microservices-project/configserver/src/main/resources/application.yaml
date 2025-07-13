@@ -1,0 +1,25 @@
+server:
+  port: 8071
+spring:
+  application:
+    name: configserver
+  profiles:
+    active: git
+  cloud:
+    config:
+      server:
+        git:
+          uri: "https://github.com/eazybytes/eazybytes-config.git"
+          clone-on-start: true
+          force-pull: true
+          timeout: 5
+#          basedir: "/Users/yousafkhan/Desktop/config-repo"
+
+#  profiles:
+#    active: native
+#  cloud:
+#    config:
+#      server:
+#        native:
+#          search-locations: classpath:/config
+#          search-locations: file:/Users/yousafkhan/Desktop/config
