@@ -45,6 +45,57 @@ services:
         limits:
           memory: 500mb
 
+  accounts-db:
+    image: mysql
+    container_name: accounts-db
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 10s
+      retries: 10
+      interval: 10s
+      start_period: 10s
+    networks:
+      - eazybank-backend
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=accounts_db
+
+  cards-db:
+    image: mysql
+    container_name: cards-db
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 10s
+      retries: 10
+      interval: 10s
+      start_period: 10s
+    networks:
+      - eazybank-backend
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=cards_db
+
+  loans-db:
+    image: mysql
+    container_name: loans-db
+    ports:
+      - "3308:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 10s
+      retries: 10
+      interval: 10s
+      start_period: 10s
+    networks:
+      - eazybank-backend
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=loans_db
+
   accounts-service:
     image: ysfkhan/eazybank-accounts-ms:v1
     container_name: accounts-service
@@ -58,10 +109,17 @@ services:
 #      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8071
       - CUSTOM_CONFIGSERVER_HOST=http://config-server:8071
       - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_DATASOURCE_URL=jdbc:mysql://accounts-db:3306/accounts_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
     depends_on:
       config-server:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      accounts-db:
         condition: service_healthy
     deploy:
       resources:
@@ -79,10 +137,17 @@ services:
 #      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8071
       - CUSTOM_CONFIGSERVER_HOST=http://config-server:8071
       - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_DATASOURCE_URL=jdbc:mysql://cards-db:3306/cards_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
     depends_on:
       config-server:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      cards-db:
         condition: service_healthy
     deploy:
       resources:
@@ -100,10 +165,17 @@ services:
 #      - SPRING_CONFIG_IMPORT=configserver:http://config-server:8071
       - CUSTOM_CONFIGSERVER_HOST=http://config-server:8071
       - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_DATASOURCE_URL=jdbc:mysql://loans-db:3306/loans_db
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
     depends_on:
       config-server:
         condition: service_healthy
       rabbitmq:
+        condition: service_healthy
+      loans-db:
         condition: service_healthy
     deploy:
       resources:
