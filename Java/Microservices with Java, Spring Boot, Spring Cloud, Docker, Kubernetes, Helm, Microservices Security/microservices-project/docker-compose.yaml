@@ -1,5 +1,23 @@
 name: EazyBank microservices
 services:
+  eureka-server:
+    image: ysfkhan/eazybank-eureka-server:v1
+    container_name: eureka-server
+    ports:
+      - "8070:8070"
+    healthcheck:
+      test: "curl --fail --silent http://localhost:8070/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    networks:
+      - eazybank-backend
+    deploy:
+      resources:
+        limits:
+          memory: 500mb
+
   rabbitmq:
     image: rabbitmq:management-alpine
     container_name: rabbitmq
@@ -114,12 +132,15 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
       - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8070/eureka/
     depends_on:
       config-server:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
       accounts-db:
+        condition: service_healthy
+      eureka-server:
         condition: service_healthy
     deploy:
       resources:
@@ -142,12 +163,15 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
       - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8070/eureka/
     depends_on:
       config-server:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
       cards-db:
+        condition: service_healthy
+      eureka-server:
         condition: service_healthy
     deploy:
       resources:
@@ -170,12 +194,15 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
       - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8070/eureka/
     depends_on:
       config-server:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
       loans-db:
+        condition: service_healthy
+      eureka-server:
         condition: service_healthy
     deploy:
       resources:
