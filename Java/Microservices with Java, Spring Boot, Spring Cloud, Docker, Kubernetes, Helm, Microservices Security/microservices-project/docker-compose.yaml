@@ -119,6 +119,12 @@ services:
     container_name: accounts-service
     ports:
       - "8080:8080"
+    healthcheck:
+      test: "curl --fail --silent http://localhost:8080/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     networks:
       - eazybank-backend
     environment:
@@ -152,6 +158,12 @@ services:
     container_name: cards-service
     ports:
       - "9000:9000"
+    healthcheck:
+      test: "curl --fail --silent http://localhost:9000/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     networks:
       - eazybank-backend
     environment:
@@ -183,6 +195,12 @@ services:
     container_name: loans-service
     ports:
       - "8090:8090"
+    healthcheck:
+      test: "curl --fail --silent http://localhost:8090/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     networks:
       - eazybank-backend
     environment:
@@ -204,6 +222,27 @@ services:
         condition: service_healthy
       eureka-server:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 500mb
+
+  api-gateway:
+    image: ysfkhan/eazybank-api-gateway:v1
+    container_name: eazybank-api-gateway
+    ports:
+      - "8072:8072"
+    networks:
+      - eazybank-backend
+    depends_on:
+      accounts-service:
+        condition: service_healthy
+      loans-service:
+        condition: service_healthy
+      cards-service:
+        condition: service_healthy
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8070/eureka/
     deploy:
       resources:
         limits:

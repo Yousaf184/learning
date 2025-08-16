@@ -1,0 +1,60 @@
+server:
+  port: 8072
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+              lower-case-service-id: true
+          routes:
+            - id: accounts_route
+              uri: lb://ACCOUNTS
+              predicates:
+                - Path=/eazybank/accounts/**
+              filters:
+                - RewritePath=/eazybank/accounts/?(?<segment>.*), /$\{segment}
+            - id: loans_route
+              uri: lb://LOANS
+              predicates:
+                - Path=/eazybank/loans/**
+              filters:
+                - RewritePath=/eazybank/loans/?(?<segment>.*), /$\{segment}
+            - id: cards_route
+              uri: lb://CARDS
+              predicates:
+                - Path=/eazybank/cards/**
+              filters:
+                - RewritePath=/eazybank/cards/?(?<segment>.*), /$\{segment}
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:8070/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    gateway:
+      access: UNRESTRICTED
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: API Gateway
+    description: API Gateway for EazyBank microservices
+    version: 1.0.0

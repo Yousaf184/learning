@@ -39,8 +39,16 @@ management:
       exposure:
         include: "*"
   endpoint:
+    health:
+      probes:
+        enabled: true
     shutdown:
       access: UNRESTRICTED
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
   info:
     env:
       enabled: true

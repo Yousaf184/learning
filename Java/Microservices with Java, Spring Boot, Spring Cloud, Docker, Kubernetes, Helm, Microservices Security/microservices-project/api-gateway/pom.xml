@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.ysf</groupId>
-	<artifactId>eureka-server</artifactId>
+	<artifactId>api-gateway</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>eureka-server</name>
-	<description>Demo project for Spring Boot</description>
+	<name>api-gateway</name>
+	<description>API Gateway for EazyBank micro services</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -37,12 +37,21 @@
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+			<artifactId>spring-cloud-starter-gateway-server-webflux</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -64,17 +73,17 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-			<!-- google jib maven plugin for generating docker images -->
-			<plugin>
-				<groupId>com.google.cloud.tools</groupId>
-				<artifactId>jib-maven-plugin</artifactId>
-				<version>3.4.6</version>
-				<configuration>
-					<to>
-						<image>ysfkhan/eazybank-${project.artifactId}:v1</image>
-					</to>
-				</configuration>
-			</plugin>
+            <!-- google jib maven plugin for generating docker images -->
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <version>3.4.6</version>
+                <configuration>
+                    <to>
+                        <image>ysfkhan/eazybank-${project.artifactId}:v1</image>
+                    </to>
+                </configuration>
+            </plugin>
 		</plugins>
 	</build>
 
