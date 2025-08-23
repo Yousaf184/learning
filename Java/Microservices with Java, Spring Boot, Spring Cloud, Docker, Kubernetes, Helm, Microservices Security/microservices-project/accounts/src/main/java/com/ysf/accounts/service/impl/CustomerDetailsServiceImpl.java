@@ -26,16 +26,20 @@ public class CustomerDetailsServiceImpl implements ICustomerDetailsService {
         ResponseEntity<ResponseDto> cardResponse = this.cardsServiceFeignClient.getCard(mobileNumber);
         ResponseEntity<ResponseDto> loanResponse = this.loansServiceFeignClient.getLoan(mobileNumber);
 
-        if (cardResponse.getStatusCode().isError() && loanResponse.getStatusCode().isError()) {
-            throw new Exception("Error while fetching card or loan details");
+        if (cardResponse != null && cardResponse.getStatusCode().isError()) {
+            throw new Exception("Error while fetching card details");
+        }
+
+        if (loanResponse != null && loanResponse.getStatusCode().isError()) {
+            throw new Exception("Error while fetching loan details");
         }
 
         ObjectMapper jsonMapper = new ObjectMapper();
 
-        CardDto cardDetails = cardResponse.getBody() != null
+        CardDto cardDetails = cardResponse != null && cardResponse.getBody() != null
                 ? jsonMapper.convertValue(cardResponse.getBody().getData(), CardDto.class)
                 : null;
-        LoanDto loanDetails = loanResponse.getBody() != null
+        LoanDto loanDetails = loanResponse != null && loanResponse.getBody() != null
                 ? jsonMapper.convertValue(loanResponse.getBody().getData(), LoanDto.class)
                 : null;
 
