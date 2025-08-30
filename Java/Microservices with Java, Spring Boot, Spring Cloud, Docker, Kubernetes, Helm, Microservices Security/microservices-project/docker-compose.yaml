@@ -38,6 +38,24 @@ services:
         limits:
           memory: 500mb
 
+  redis-ratelimiter:
+    image: redis:alpine3.22
+    container_name: redis-ratelimiter
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    networks:
+      - eazybank-backend
+    deploy:
+      resources:
+        limits:
+          memory: 500mb
+
   config-server:
     image: ysfkhan/eazybank-configserver:v1
     container_name: config-server
@@ -241,8 +259,11 @@ services:
         condition: service_healthy
       cards-service:
         condition: service_healthy
+      redis-ratelimiter:
+        condition: service_healthy
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8070/eureka/
+      - SPRING_DATA_REDIS_HOST=redis-ratelimiter
     deploy:
       resources:
         limits:
