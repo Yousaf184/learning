@@ -23,19 +23,46 @@ spring:
                   args:
                     name: accountsCircuitBreaker
                     fallbackUri: forward:/fallback
+                - name: Retry
+                  args:
+                    retries: 3
+                    methods: GET
+                    backoff:
+                      firstBackoff: 50ms
+                      maxBackoff: 200ms
+                      factor: 2
+                      basedOnPreviousValue: true
             - id: loans_route
               uri: lb://LOANS
               predicates:
                 - Path=/eazybank/loans/**
               filters:
                 - RewritePath=/eazybank/loans/?(?<segment>.*), /$\{segment}
+                - name: Retry
+                  args:
+                    retries: 3
+                    methods: GET
+                    backoff:
+                      firstBackoff: 50ms
+                      maxBackoff: 200ms
+                      factor: 2
+                      basedOnPreviousValue: true
             - id: cards_route
               uri: lb://CARDS
               predicates:
                 - Path=/eazybank/cards/**
               filters:
                 - RewritePath=/eazybank/cards/?(?<segment>.*), /$\{segment}
-          # http timeout settings (circuit breaker has its own default timeout)
+                - name: Retry
+                  args:
+                    retries: 3
+                    methods: GET
+                    backoff:
+                      firstBackoff: 50ms
+                      maxBackoff: 200ms
+                      factor: 2
+                      basedOnPreviousValue: true
+          # http timeout settings (circuit breaker has its own default timeout (TimeLimiter module))
           httpclient:
             connect-timeout: 3000  # milliseconds
             response-timeout: 5000 # milliseconds
@@ -49,6 +76,12 @@ resilience4j.circuitbreaker:
       failure-rate-threshold: 50 # percentage
       wait-duration-in-open-state: 10000 # milliseconds
       max-wait-duration-in-half-open-state: 10000 # milliseconds
+
+resilience4j.timelimiter:
+    configs:
+      default:
+        timeout-duration: 5s
+        cancel-running-future: true
 
 eureka:
   instance:

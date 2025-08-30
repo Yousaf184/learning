@@ -20,12 +20,16 @@ public class ResponsePostFilter implements GlobalFilter, Ordered {
         return chain.filter(exchange)
                 .then(Mono.just(exchange))
                 .map((serverWebExchange) -> {
-                    HttpHeaders requestHeaders = exchange.getRequest().getHeaders();
-                    String correlationId = CorrelationIdFilterUtil.getCorrelationId(requestHeaders);
-                    log.info("Setting correlation id in response header: " + correlationId);
+                    HttpHeaders responseHeaders = serverWebExchange.getResponse().getHeaders();
 
-                    serverWebExchange.getResponse()
-                            .getHeaders().set(CorrelationIdFilterUtil.CORRELATION_ID_KEY, correlationId);
+                    if (CorrelationIdFilterUtil.getCorrelationId(responseHeaders) == null) {
+                        HttpHeaders requestHeaders = exchange.getRequest().getHeaders();
+                        String correlationId = CorrelationIdFilterUtil.getCorrelationId(requestHeaders);
+
+                        log.info("Setting correlation id in response header: " + correlationId);
+
+                        responseHeaders.set(CorrelationIdFilterUtil.CORRELATION_ID_KEY, correlationId);
+                    }
                     return serverWebExchange;
                 })
                 .then();
