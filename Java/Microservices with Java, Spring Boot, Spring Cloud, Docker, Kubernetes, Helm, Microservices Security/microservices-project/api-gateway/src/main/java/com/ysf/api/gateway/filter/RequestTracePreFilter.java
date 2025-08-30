@@ -19,6 +19,7 @@ public class RequestTracePreFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        System.out.println("============ RUNNING PRE FILTER ================");
         HttpHeaders requestHeaders = exchange.getRequest().getHeaders();
         String correlationId = CorrelationIdFilterUtil.getCorrelationId(requestHeaders);
 
